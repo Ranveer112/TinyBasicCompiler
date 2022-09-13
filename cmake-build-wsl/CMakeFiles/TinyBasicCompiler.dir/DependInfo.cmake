@@ -8,6 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TerminalToken.cpp" "CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o" "gcc" "CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o.d"
+  "/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TinyBasicNFA.cpp" "CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o" "gcc" "CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o.d"
   "/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/main.cpp" "CMakeFiles/TinyBasicCompiler.dir/main.cpp.o" "gcc" "CMakeFiles/TinyBasicCompiler.dir/main.cpp.o.d"
   )
 

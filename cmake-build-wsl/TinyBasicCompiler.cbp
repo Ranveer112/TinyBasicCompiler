@@ -84,6 +84,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TerminalToken.cpp">
+			<Option target="TinyBasicCompiler"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TinyBasicNFA.cpp">
+			<Option target="TinyBasicCompiler"/>
+		</Unit>
 		<Unit filename="/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/main.cpp">
 			<Option target="TinyBasicCompiler"/>
 		</Unit>

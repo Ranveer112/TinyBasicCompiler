@@ -129,6 +129,54 @@ TinyBasicCompiler/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/TinyBasicCompiler.dir/build.make CMakeFiles/TinyBasicCompiler.dir/build
 .PHONY : TinyBasicCompiler/fast
 
+TerminalToken.o: TerminalToken.cpp.o
+.PHONY : TerminalToken.o
+
+# target to build an object file
+TerminalToken.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TinyBasicCompiler.dir/build.make CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o
+.PHONY : TerminalToken.cpp.o
+
+TerminalToken.i: TerminalToken.cpp.i
+.PHONY : TerminalToken.i
+
+# target to preprocess a source file
+TerminalToken.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TinyBasicCompiler.dir/build.make CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.i
+.PHONY : TerminalToken.cpp.i
+
+TerminalToken.s: TerminalToken.cpp.s
+.PHONY : TerminalToken.s
+
+# target to generate assembly for a file
+TerminalToken.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TinyBasicCompiler.dir/build.make CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.s
+.PHONY : TerminalToken.cpp.s
+
+TinyBasicNFA.o: TinyBasicNFA.cpp.o
+.PHONY : TinyBasicNFA.o
+
+# target to build an object file
+TinyBasicNFA.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TinyBasicCompiler.dir/build.make CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o
+.PHONY : TinyBasicNFA.cpp.o
+
+TinyBasicNFA.i: TinyBasicNFA.cpp.i
+.PHONY : TinyBasicNFA.i
+
+# target to preprocess a source file
+TinyBasicNFA.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TinyBasicCompiler.dir/build.make CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.i
+.PHONY : TinyBasicNFA.cpp.i
+
+TinyBasicNFA.s: TinyBasicNFA.cpp.s
+.PHONY : TinyBasicNFA.s
+
+# target to generate assembly for a file
+TinyBasicNFA.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TinyBasicCompiler.dir/build.make CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.s
+.PHONY : TinyBasicNFA.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -162,6 +210,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... TinyBasicCompiler"
+	@echo "... TerminalToken.o"
+	@echo "... TerminalToken.i"
+	@echo "... TerminalToken.s"
+	@echo "... TinyBasicNFA.o"
+	@echo "... TinyBasicNFA.i"
+	@echo "... TinyBasicNFA.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

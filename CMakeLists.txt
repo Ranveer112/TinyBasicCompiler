@@ -3,4 +3,4 @@ project(TinyBasicCompiler)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(TinyBasicCompiler main.cpp)
+add_executable(TinyBasicCompiler main.cpp TinyBasicNFA.cpp TerminalToken.cpp)

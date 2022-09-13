@@ -83,17 +83,49 @@ CMakeFiles/TinyBasicCompiler.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TinyBasicCompiler.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/main.cpp -o CMakeFiles/TinyBasicCompiler.dir/main.cpp.s
 
+CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o: CMakeFiles/TinyBasicCompiler.dir/flags.make
+CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o: ../TinyBasicNFA.cpp
+CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o: CMakeFiles/TinyBasicCompiler.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o -MF CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o.d -o CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o -c /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TinyBasicNFA.cpp
+
+CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TinyBasicNFA.cpp > CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.i
+
+CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TinyBasicNFA.cpp -o CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.s
+
+CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o: CMakeFiles/TinyBasicCompiler.dir/flags.make
+CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o: ../TerminalToken.cpp
+CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o: CMakeFiles/TinyBasicCompiler.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o -MF CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o.d -o CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o -c /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TerminalToken.cpp
+
+CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TerminalToken.cpp > CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.i
+
+CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/TerminalToken.cpp -o CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.s
+
 # Object files for target TinyBasicCompiler
 TinyBasicCompiler_OBJECTS = \
-"CMakeFiles/TinyBasicCompiler.dir/main.cpp.o"
+"CMakeFiles/TinyBasicCompiler.dir/main.cpp.o" \
+"CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o" \
+"CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o"
 
 # External object files for target TinyBasicCompiler
 TinyBasicCompiler_EXTERNAL_OBJECTS =
 
 TinyBasicCompiler: CMakeFiles/TinyBasicCompiler.dir/main.cpp.o
+TinyBasicCompiler: CMakeFiles/TinyBasicCompiler.dir/TinyBasicNFA.cpp.o
+TinyBasicCompiler: CMakeFiles/TinyBasicCompiler.dir/TerminalToken.cpp.o
 TinyBasicCompiler: CMakeFiles/TinyBasicCompiler.dir/build.make
 TinyBasicCompiler: CMakeFiles/TinyBasicCompiler.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable TinyBasicCompiler"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable TinyBasicCompiler"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/TinyBasicCompiler.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

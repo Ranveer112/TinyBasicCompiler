@@ -3,6 +3,9 @@ Compiler for TinyBasic
 
 Grammer
 ```
+
+    NON-TERMINALS:  
+    
     line ::= number statement CR | statement CR
  
     statement ::= print expr-list
@@ -27,10 +30,13 @@ Grammer
  
     factor ::= var | number | (expression)
  
-    var ::= whitespace* (A | B | C ... | Y | Z) whitespace*
- 
     number ::= (whitespace*) digit digit* (whitespace*)
  
+ 
+    TERMINALS:
+    
+    var ::= whitespace* (A | B | C ... | Y | Z) whitespace*
+    
     digit ::= 0 | 1 | 2 | 3 | ... | 8 | 9
  
     relop ::= whitespace* (< (>|=|ε) | > (<|=|ε) | =) whitespace*
