@@ -2,74 +2,89 @@ Compiler for TinyBasic
 
 
 Grammer
-```
 
-    NON-TERMINALS:  
+
+```
+    line ::= (whitespace| ε) number whitespace statement (whitespace| ε) CR 
+           | (whitespace| ε) statement (whitespace| ε) CR
+ 
+    statement ::= PRINT whitespace expr-list
+                  | IF whitespace expression (whitespace| ε) relop (whitespace| ε) expression whitespace THEN whitespace statement
+                  | GOTO whitespace expression
+                  | INPUT whitespace var-list
+                  | LET whitespace var (whitespace| ε) = (whitespace| ε) expression
+                  | GOSUB whitespace expression
+                  | RETURN
+                  | CLEAR
+                  | LIST
+                  | RUN
+                  | END
+ 
+    expr-list ::= (string|expression)
+                  |(string|expression) comma (whitespace| ε) expr-list
+ 
+    var-list ::= var 
+                 | var (whitespace| ε) comma (whitespace| ε) var-list
+ 
+    expression ::= (add|sub|ε) term secondexpression
+
+    secondexpression ::= ε 
+                         | (add|sub) term secondexpression
     
-    line ::= number statement CR | statement CR
+    term ::= factor 
+            | factor (whitespace| ε) (mult|div) (whitespace| ε) term 
  
-    statement ::= print expr-list
-                  if expression relop expression then statement
-                  goto expression
-                  input var-list
-                  let var = expression
-                  gosum expression
-                  return
-                  clear
-                  list
-                  run
-                  end
+    factor ::= var 
+               | number 
+               | (expression)
  
-    expr-list ::= (string|expression) (comma (string|expression) )*
+    var ::= alpha 
+            | (alpha var)
  
-    var-list ::= var (comma var)*
- 
-    expression ::= whitespace* (sign|ε) whitespace* term whitespace* (sign whitespace* term)* whitespace* 
- 
-    term ::= factor whitespace*  (ops whitespace*  factor)* whitespace* 
- 
-    factor ::= var | number | (expression)
- 
-    number ::= (whitespace*) digit digit* (whitespace*)
- 
- 
-    TERMINALS:
+    number ::= digit 
+               | (digit | number)
+
+    Terminals 
+
+    add ::= +
     
-    var ::= whitespace* (A | B | C ... | Y | Z) whitespace*
+    sub ::= - 
+   
+    mult ::= *
     
+    div ::= /
+ 
+    comma ::= ,
+ 
     digit ::= 0 | 1 | 2 | 3 | ... | 8 | 9
  
-    relop ::= whitespace* (< (>|=|ε) | > (<|=|ε) | =) whitespace*
+    relop ::= < (>|=|ε) | > (<|=|ε) | =
 
-    string ::= whitespace* " ( |!|#|$ ... -|.|/|digit|: ... @|A|B|C ... |X|Y|Z)* " whitespace*
-    
-    sign ::= whitespace* (+|-) whitespace*
-    
-    ops ::= whitespace* (*|/) whitespace* 
-    
-    comma ::= whitespace* , whitespace*
+    alpha ::= (a | b | c .... z | A | B | C ... | Y | Z)
         
-    print ::= whitespace* PRINT whitespace*
-    
-    if ::= whitespace* IF whitespace*
-    
-    then ::= whitespace* THEN whitespace*
-    
-    goto ::= whitespace* GOTO whitespace*
-    
-    input ::= whitespace* INPUT whitespace*
-    
-    let ::= whitespace* LET whitespace*
-    
-    gosub ::= whitespace* GOSUB whitespace*
-    
-    return  ::= whitespace* RETURN whitespace*
-    
-    clear ::= whitespace* CLEAR whitespace*
-    
-    list ::= whitespace* LIST whitespace*
-    
-    run ::= whitespace* RUN whitespace*
-    
-    end ::= whitespace* END whitespace*
+    whitespace ::= ( ) ( )*
+
+    print ::= PRINT
+
+    return ::= RETURN
+
+    if ::= IF
+
+    then  ::= THEN
+  
+    goto ::= GOTO
+
+    input ::= INPUT
+
+    let ::= LET
+
+    clear ::= CLEAR
+ 
+    end ::= END
+
+    list ::= LIST
+
+    gosub ::= GOSUB
+
+    string ::= "( |!|#|$ ... -|.|/|0|1|2....|9|: ... @|A|B|C ... |X|Y|Z)*"
 ```

@@ -1,6 +1,7 @@
 #include <iostream>
-
+#include "TerminalToken.cpp"
+#include "TinyBasicNFA.cpp"
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    TerminalToken
     return 0;
 }
