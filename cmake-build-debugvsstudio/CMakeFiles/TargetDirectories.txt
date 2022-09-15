@@ -1,3 +1,0 @@
-C:/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-debugvsstudio/CMakeFiles/TinyBasicCompiler.dir
-C:/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-debugvsstudio/CMakeFiles/edit_cache.dir
-C:/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-debugvsstudio/CMakeFiles/rebuild_cache.dir

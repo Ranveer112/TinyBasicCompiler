@@ -1,4 +1,0 @@
-C:\windows\system32\wsl.exe --distribution Debian --exec /bin/bash -c "export CLION_IDE=TRUE && export JETBRAINS_IDE=TRUE && cd /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl && /home/ranveer1/cmake-3.21.4-linux-x86_64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G 'CodeBlocks - Unix Makefiles' /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler; exitcode=$?; sleep 0.001; (exit $exitcode)"
--- Configuring done
--- Generating done
--- Build files have been written to: /mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl

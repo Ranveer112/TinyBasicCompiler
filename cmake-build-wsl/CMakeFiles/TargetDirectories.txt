@@ -1,3 +1,0 @@
-/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl/CMakeFiles/rebuild_cache.dir
-/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl/CMakeFiles/edit_cache.dir
-/mnt/c/Users/ranve/CLionProjects/TinyBasicCompiler/cmake-build-wsl/CMakeFiles/TinyBasicCompiler.dir
