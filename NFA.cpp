@@ -7,6 +7,14 @@
 
 class NFAState {
     NFAState() {}
+    ~NFAState(){
+        for(auto[key, states]:nextStates){
+            for(auto state:states){
+                delete state;
+            }
+        }
+
+    }
 
 private:
     TerminalToken tok;
@@ -34,6 +42,9 @@ public:
         }
         this->startingState = cumulativeNFA[0];
         this->currStates.push_back(startingState);
+    }
+    ~TinyBasicNFA(){
+        delete startingState;
     }
 
 private:
