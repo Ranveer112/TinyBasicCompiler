@@ -5,8 +5,8 @@ Grammer
 
 
 ```
-    line ::= (whitespace| ε) number whitespace statement (whitespace| ε) CR 
-           | (whitespace| ε) statement (whitespace| ε) CR
+    line ::= (whitespace| ε) number whitespace statement (whitespace| ε) newline 
+           | (whitespace| ε) statement (whitespace| ε) newline
  
     statement ::= PRINT whitespace expr-list
                   | IF whitespace expression (whitespace| ε) relop (whitespace| ε) expression whitespace THEN whitespace statement
@@ -87,4 +87,6 @@ Grammer
     gosub ::= GOSUB
 
     string ::= "( |!|#|$ ... -|.|/|0|1|2....|9|: ... @|A|B|C ... |X|Y|Z)*"
+    
+    newline ::= \n
 ```

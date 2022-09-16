@@ -7,9 +7,10 @@
 
 class NFAState {
     NFAState() {}
-    ~NFAState(){
-        for(auto[key, states]:nextStates){
-            for(auto state:states){
+
+    ~NFAState() {
+        for (auto[key, states]: nextStates) {
+            for (auto state: states) {
                 delete state;
             }
         }
@@ -22,13 +23,13 @@ private:
     std::unordered_map<char, std::vector<NFAState *>> nextStates;
     bool isAccepting;
 
-    friend class TinyBasicNFA;
+    friend class NFA;
 };
 
 
-class TinyBasicNFA {
+class NFA {
 public:
-    TinyBasicNFA(std::vector<TerminalToken> terminalTokens) {
+    NFA(std::vector<TerminalToken> terminalTokens) {
         std::vector<std::array<NFAState *, 2>> individualNFAS;
         for (TerminalToken &t: terminalTokens) {
             individualNFAS.push_back(constructNFA(t.getPattern()));
@@ -43,15 +44,42 @@ public:
         this->startingState = cumulativeNFA[0];
         this->currStates.push_back(startingState);
     }
-    ~TinyBasicNFA(){
+
+    ~NFA() {
         delete startingState;
+    }
+
+    std::pair<bool, TerminalToken> transition(const char &ch) {
+        std::vector<NFAState *> newStates;
+        for (NFAState *state: currStates) {
+            if (state->nextStates.find(ch) != state->nextStates.end()) {
+                for (NFAState *neighbouringState: state->nextStates[ch]) {
+                    newStates.push_back(neighbouringState);
+                    if (newStates.back()->isAccepting) {
+                        this->acceptingStatesInPath.push_back(newStates.back());
+                    }
+                }
+            }
+        }
+        TerminalToken currToken;
+        if (newStates.size() == 0) {
+            //error state
+            if (acceptingStatesInPath.size() == 0) {
+                return {false, currToken};
+            } else {
+                this->currStates.clear();
+                this->currStates.push_back(this->startingState);
+                NFAState *stateToReturn = this->acceptingStatesInPath.back();
+                this->acceptingStatesInPath.clear();
+                return {true, stateToReturn->tok};
+            }
+        } else {
+            return {true, currToken};
+        }
     }
 
 private:
 
-    /*
-     * (\\+)
-     */
     std::array<NFAState *, 2> constructNFA(const std::string &pattern) {
         std::stack<std::pair<std::array<NFAState *, 2>, char>>
                 st;
@@ -112,34 +140,6 @@ private:
         return {currStartingState, currAcceptingState};
     }
 
-    std::pair<bool, TerminalToken> transition(const char &ch) {
-        std::vector<NFAState *> newStates;
-        for (NFAState *state: currStates) {
-            if (state->nextStates.find(ch) != state->nextStates.end()) {
-                for (NFAState *neighbouringState: state->nextStates[ch]) {
-                    newStates.push_back(neighbouringState);
-                    if (newStates.back()->isAccepting) {
-                        this->acceptingStatesInPath.push_back(newStates.back());
-                    }
-                }
-            }
-        }
-        TerminalToken currToken;
-        if (newStates.size() == 0) {
-            //error state
-            if (acceptingStatesInPath.size() == 0) {
-                return {false, currToken};
-            } else {
-                this->currStates.clear();
-                this->currStates.push_back(this->startingState);
-                NFAState *stateToReturn = this->acceptingStatesInPath.back();
-                this->acceptingStatesInPath.clear();
-                return {true, stateToReturn->tok};
-            }
-        } else {
-            return {true, currToken};
-        }
-    }
 
     std::array<NFAState *, 2>
     joinOr(NFAState *firstStart, NFAState *firstAccepting, NFAState *secondStart, NFAState *secondAccepting) {

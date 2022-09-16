@@ -6,6 +6,7 @@
 class TerminalToken {
 public:
     TerminalToken(){}
+
     TerminalToken(std::string name, std::string pattern) {
         this->name = name;
         this->pattern = pattern;
