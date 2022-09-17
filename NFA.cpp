@@ -4,18 +4,12 @@
 #include <array>
 #include <stack>
 #include <assert.h>
+#include <iostream>
 
 class NFAState {
     NFAState() {}
 
-    ~NFAState() {
-        for (auto[key, states]: nextStates) {
-            for (auto state: states) {
-                delete state;
-            }
-        }
-
-    }
+    ~NFAState() {}
 
 private:
     TerminalToken tok;
@@ -40,19 +34,24 @@ public:
         while (individualNFAS.size() > 0) {
             cumulativeNFA = joinOr(cumulativeNFA[0], cumulativeNFA[1], individualNFAS.back()[0],
                                    individualNFAS.back()[1]);
+            individualNFAS.pop_back();
         }
         this->startingState = cumulativeNFA[0];
         this->currStates.push_back(startingState);
     }
 
     ~NFA() {
-        delete startingState;
+        for(NFAState* state:totalStates){
+            delete state;
+        }
     }
 
     std::pair<bool, TerminalToken> transition(const char &ch) {
+        /*
         std::vector<NFAState *> newStates;
         for (NFAState *state: currStates) {
             if (state->nextStates.find(ch) != state->nextStates.end()) {
+                std::cout << "Moved" << std::endl;
                 for (NFAState *neighbouringState: state->nextStates[ch]) {
                     newStates.push_back(neighbouringState);
                     if (newStates.back()->isAccepting) {
@@ -61,8 +60,18 @@ public:
                 }
             }
         }
+        currStates.clear();
+        currStates = newStates;
+
         TerminalToken currToken;
-        if (newStates.size() == 0) {
+        if (acceptingStatesInPath.size() > 0) {
+            return {true, acceptingStatesInPath.back()->tok};
+        } else {
+            return {false, currToken};
+        }
+        /*
+        TerminalToken currToken;
+        if (currStates.size() == 0) {
             //error state
             if (acceptingStatesInPath.size() == 0) {
                 return {false, currToken};
@@ -76,6 +85,8 @@ public:
         } else {
             return {true, currToken};
         }
+         */
+
     }
 
 private:
@@ -86,6 +97,7 @@ private:
         st.push({{nullptr, nullptr}, NULL});
         char currentExpressionOp = NULL;
         char currentExpressionValue = NULL;
+        bool isCharacterPending = false;
         auto mergeStates = [&](std::array<NFAState *, 2> &currExpressionStates) -> void {
             if (st.top().first[0] == nullptr) {
                 if (st.top().second == '*') {
@@ -107,16 +119,19 @@ private:
             }
         };
         for (int i = 0; i < (int) (pattern.size()); i++) {
+
             if (pattern[i] == '(') {
                 st.push({{nullptr, nullptr}, currentExpressionOp});
                 currentExpressionOp = NULL;
+                isCharacterPending = true;
             } else if (pattern[i] == ')') {
-                std::array<NFAState *, 2> currExpressionStates = (currentExpressionValue == NULL ? st.top().first
-                                                                                                 : constructNFASingleChar(
+                std::array<NFAState *, 2> currExpressionStates = (isCharacterPending == false ? st.top().first
+                                                                                              : constructNFASingleChar(
                                 currentExpressionValue));
                 st.pop();
                 mergeStates(currExpressionStates);
                 currentExpressionValue = NULL;
+                isCharacterPending = false;
 
 
             } else if (pattern[i] == '+' || pattern[i] == '*' || pattern[i] == '|') {
@@ -137,12 +152,16 @@ private:
         NFAState *currAcceptingState = new NFAState;
         currStartingState->nextStates[value].push_back(currAcceptingState);
         currAcceptingState->isAccepting = true;
+        (this->totalStates).push_back(currAcceptingState);
+        (this->totalStates).push_back(currStartingState);
         return {currStartingState, currAcceptingState};
     }
 
 
     std::array<NFAState *, 2>
     joinOr(NFAState *firstStart, NFAState *firstAccepting, NFAState *secondStart, NFAState *secondAccepting) {
+        assert(firstStart != nullptr && firstAccepting != nullptr && secondStart != nullptr &&
+               secondAccepting != nullptr);
         firstAccepting->isAccepting = false;
         secondAccepting->isAccepting = false;
         NFAState *newStartingState = new NFAState;
@@ -152,6 +171,8 @@ private:
         newStartingState->nextStates[NULL].push_back(secondStart);
         firstAccepting->nextStates[NULL].push_back(newAcceptingState);
         secondAccepting->nextStates[NULL].push_back(newAcceptingState);
+        (this->totalStates).push_back(newAcceptingState);
+        (this->totalStates).push_back(newStartingState);
         return {newStartingState, newAcceptingState};
     }
 
@@ -165,6 +186,8 @@ private:
         firstAccepting->nextStates[NULL].push_back(firstStart);
         firstAccepting->nextStates[NULL].push_back(newAcceptingState);
         firstAccepting->isAccepting = false;
+        (this->totalStates).push_back(newStartingState);
+        (this->totalStates).push_back(newAcceptingState);
         return {newStartingState, newAcceptingState};
 
     }
@@ -172,13 +195,13 @@ private:
     std::array<NFAState *, 2>
     joinConcat(NFAState *firstStart, NFAState *firstAccepting, NFAState *secondStart, NFAState *secondAccepting) {
         firstAccepting->isAccepting = false;
-        firstAccepting->nextStates[NULL].push_back(secondStart);
+        firstAccepting->nextStates = secondStart->nextStates;
+        delete secondStart;
         return {firstStart, secondAccepting};
     }
 
 
     std::vector<NFAState *> currStates;
-    std::vector<NFAState *> acceptingStatesInPath;
+    std::vector<NFAState *> totalStates;
     NFAState *startingState;
-
 };
