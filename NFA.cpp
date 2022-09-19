@@ -5,6 +5,8 @@
 #include <stack>
 #include <assert.h>
 #include <iostream>
+#include <queue>
+#include <functional>
 
 class NFAState {
     NFAState() {}
@@ -13,7 +15,7 @@ class NFAState {
 
 private:
     TerminalToken tok;
-
+    int stateId;
     std::unordered_map<char, std::vector<NFAState *>> nextStates;
     bool isAccepting;
 
@@ -29,64 +31,77 @@ public:
             individualNFAS.push_back(constructNFA(t.getPattern()));
             individualNFAS.back()[1]->tok = t;
         }
-        std::array<NFAState *, 2> cumulativeNFA = individualNFAS.back();
-        individualNFAS.pop_back();
+        this->startingState=new NFAState;
         while (individualNFAS.size() > 0) {
-            cumulativeNFA = joinOr(cumulativeNFA[0], cumulativeNFA[1], individualNFAS.back()[0],
-                                   individualNFAS.back()[1]);
+            this->startingState->nextStates[NULL].push_back(individualNFAS.back()[0]);
             individualNFAS.pop_back();
         }
-        this->startingState = cumulativeNFA[0];
-        this->currStates.push_back(startingState);
+        totalStates.push_back(this->startingState);
+        for (int pos = 0; pos < (int) (totalStates).size(); pos++) {
+            totalStates[pos]->stateId = pos;
+        }
     }
 
     ~NFA() {
-        for(NFAState* state:totalStates){
+        for (NFAState *state: totalStates) {
             delete state;
         }
     }
 
-    std::pair<bool, TerminalToken> transition(const char &ch) {
-        /*
-        std::vector<NFAState *> newStates;
-        for (NFAState *state: currStates) {
-            if (state->nextStates.find(ch) != state->nextStates.end()) {
-                std::cout << "Moved" << std::endl;
-                for (NFAState *neighbouringState: state->nextStates[ch]) {
-                    newStates.push_back(neighbouringState);
-                    if (newStates.back()->isAccepting) {
-                        this->acceptingStatesInPath.push_back(newStates.back());
-                    }
+
+    std::pair<bool, std::vector<TerminalToken>> generateTokens(const std::string &fileContent) {
+        std::vector<TerminalToken> tokens;
+        int ptr = -1;
+        std::queue<NFAState *> currLevelStates;
+        std::vector<bool> visited(totalStates.size(), false);
+        std::pair<int, NFAState *> acceptingState = {-1, nullptr};
+        std::function<void(NFAState *)> updateCurrAndEpsilonReachAble = [&](NFAState *state) -> void {
+            if (!visited[state->stateId]) {
+                visited[state->stateId] = true;
+                currLevelStates.push(state);
+                if (state->isAccepting) {
+                    acceptingState = {ptr, state};
+                }
+                for (NFAState *epsilonTransitionNeighbors: state->nextStates[NULL]) {
+                    updateCurrAndEpsilonReachAble(epsilonTransitionNeighbors);
                 }
             }
-        }
-        currStates.clear();
-        currStates = newStates;
+        };
+        updateCurrAndEpsilonReachAble(this->startingState);
+        ptr++;
+        while (ptr < (int) (fileContent.size())) {
+            int currSize = currLevelStates.size();
+            while (currSize--) {
+                NFAState *curr = currLevelStates.front();
+                currLevelStates.pop();
+                if (curr->nextStates.find(fileContent[ptr]) != curr->nextStates.end()) {
+                    for (NFAState *neighboringToCurrState: curr->nextStates[fileContent[ptr]]) {
+                        if (!visited[neighboringToCurrState->stateId]) {
+                            updateCurrAndEpsilonReachAble(neighboringToCurrState);
+                        }
+                    }
+                }
 
-        TerminalToken currToken;
-        if (acceptingStatesInPath.size() > 0) {
-            return {true, acceptingStatesInPath.back()->tok};
-        } else {
-            return {false, currToken};
-        }
-        /*
-        TerminalToken currToken;
-        if (currStates.size() == 0) {
-            //error state
-            if (acceptingStatesInPath.size() == 0) {
-                return {false, currToken};
-            } else {
-                this->currStates.clear();
-                this->currStates.push_back(this->startingState);
-                NFAState *stateToReturn = this->acceptingStatesInPath.back();
-                this->acceptingStatesInPath.clear();
-                return {true, stateToReturn->tok};
+
             }
-        } else {
-            return {true, currToken};
-        }
-         */
+            if (currLevelStates.size() == 0) {
+                //file has lexical error
+                if (acceptingState.first == -1 && acceptingState.second == nullptr) {
+                    return {false, {}};
+                }
+                ptr = acceptingState.first + 1;
+                tokens.push_back(acceptingState.second->tok);
+                std::fill(visited.begin(), visited.end(), false);
+                updateCurrAndEpsilonReachAble(this->startingState);
+                acceptingState = {-1, nullptr};
+            } else { ptr++; }
 
+        }
+        if (acceptingState.first == -1 && acceptingState.second == nullptr) {
+            return {false, {}};
+        }
+        tokens.push_back(acceptingState.second->tok);
+        return {true, tokens};
     }
 
 private:
@@ -98,7 +113,8 @@ private:
         char currentExpressionOp = NULL;
         char currentExpressionValue = NULL;
         bool isCharacterPending = false;
-        auto mergeStates = [&](std::array<NFAState *, 2> &currExpressionStates) -> void {
+        std::function<void(std::array<NFAState *, 2> &)> mergeStates = [&](
+                std::array<NFAState *, 2> &currExpressionStates) -> void {
             if (st.top().first[0] == nullptr) {
                 if (st.top().second == '*') {
                     st.top().first = joinKleene(currExpressionStates[0], currExpressionStates[1]);
@@ -195,13 +211,10 @@ private:
     std::array<NFAState *, 2>
     joinConcat(NFAState *firstStart, NFAState *firstAccepting, NFAState *secondStart, NFAState *secondAccepting) {
         firstAccepting->isAccepting = false;
-        firstAccepting->nextStates = secondStart->nextStates;
-        delete secondStart;
+        firstAccepting->nextStates[NULL].push_back(secondStart);
         return {firstStart, secondAccepting};
     }
 
-
-    std::vector<NFAState *> currStates;
     std::vector<NFAState *> totalStates;
     NFAState *startingState;
 };

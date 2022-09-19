@@ -16,7 +16,8 @@ int main() {
     TerminalToken
             alpha("alpha",
                   "|((a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)(m)(n)(o)(p)(r)(s)(t)(u)(v)(w)(x)(y)(z)(A)(B)(C)(D)(E)(F)(G)(H)(I)(J)(K)(L)(M)(N)(O)(P)(Q)(R)(S)(T)(U)(V)(W)(X)(Y)(Z))");
-    TerminalToken whitespace("whitespace", "+(( )*(( )))");
+    //TerminalToken whitespace("whitespace", "+(( )*(( )))");
+    TerminalToken whitespace("whitespace", "( )");
     TerminalToken print("print", "+((P)(R)(I)(N)(T))");
     TerminalToken RETURN("return", "+((R)(E)(T)(U)(R)(N))");
     TerminalToken IF("if", "+((I)(F))");
@@ -32,7 +33,7 @@ int main() {
 
     TerminalToken newline("newline", "(\n)");
 
-    terminalTokens = {print};/*add, sub,  mult, div, comma, digit, relop, alpha, whitespace, print, RETURN, IF, then, GOTO, input,
+    terminalTokens = {print, whitespace};/*add, sub,  mult, div, comma, digit, relop, alpha, whitespace, print, RETURN, IF, then, GOTO, input,
                       let, clear, end, list, gosub, STRING};*/
 
     NFA nfa(terminalTokens);
@@ -45,19 +46,14 @@ int main() {
         while (getline(myfile, line, '\n')) {
             fileContent += line;
         }
-        std::cout<<fileContent<<std::endl;
-        for (char c: fileContent) {
-            std::pair<bool, TerminalToken> result=nfa.transition(c);
-            if (result.first == true) {
-                outfile << result.second.getName();
-                /*
-                std::cout << "Lexical error in the code" << std::endl;
-            } else {
-                outfile << result.second.getName();
-            }
-                 */
+
+        std::pair<bool, std::vector<TerminalToken>> result=nfa.generateTokens(fileContent);
+        if(result.first){
+            for(TerminalToken token:result.second){
+                outfile<<token.getName();
             }
         }
+
     }
     else{
         std::cout<<"File cannot be found"<<std::endl;
