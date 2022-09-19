@@ -1,0 +1,8 @@
+print
+whitespace
+relop
+whitespace
+relop
+relop
+whitespace
+gosub
