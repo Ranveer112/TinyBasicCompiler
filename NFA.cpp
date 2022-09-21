@@ -31,7 +31,7 @@ public:
             individualNFAS.push_back(constructNFA(t.getPattern()));
             individualNFAS.back()[1]->tok = t;
         }
-        this->startingState=new NFAState;
+        this->startingState = new NFAState;
         while (individualNFAS.size() > 0) {
             this->startingState->nextStates[NULL].push_back(individualNFAS.back()[0]);
             individualNFAS.pop_back();
@@ -66,19 +66,19 @@ public:
                     updateCurrAndEpsilonReachAble(epsilonTransitionNeighbors);
                 }
             }
+
         };
         updateCurrAndEpsilonReachAble(this->startingState);
         ptr++;
         while (ptr < (int) (fileContent.size())) {
             int currSize = currLevelStates.size();
+            std::fill(visited.begin(), visited.end(), false);
             while (currSize--) {
                 NFAState *curr = currLevelStates.front();
                 currLevelStates.pop();
                 if (curr->nextStates.find(fileContent[ptr]) != curr->nextStates.end()) {
-                    for (NFAState *neighboringToCurrState: curr->nextStates[fileContent[ptr]]) {
-                        if (!visited[neighboringToCurrState->stateId]) {
-                            updateCurrAndEpsilonReachAble(neighboringToCurrState);
-                        }
+                    for (NFAState *neighboringToCurrState: curr->nextStates[fileContent[ptr]]){
+                        updateCurrAndEpsilonReachAble(neighboringToCurrState);
                     }
                 }
 

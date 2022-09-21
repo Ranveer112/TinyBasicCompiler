@@ -12,12 +12,10 @@ int main() {
     TerminalToken comma("comma", "(,)");
     TerminalToken digit("digit", "|((0)(1)(2)(3)(4)(5)(6)(7)(8)(9))");
     TerminalToken relop("relop", "|(+((<)|((>)(=)()))+((>)|((<)(=)()))(=))");
-    TerminalToken relop2("relop", "|((<)(>))");
     TerminalToken
             alpha("alpha",
                   "|((a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)(m)(n)(o)(p)(r)(s)(t)(u)(v)(w)(x)(y)(z)(A)(B)(C)(D)(E)(F)(G)(H)(I)(J)(K)(L)(M)(N)(O)(P)(Q)(R)(S)(T)(U)(V)(W)(X)(Y)(Z))");
-    //TerminalToken whitespace("whitespace", "+(( )*(( )))");
-    TerminalToken whitespace("whitespace", "( )");
+    TerminalToken whitespace("whitespace", "+(( )*(( )))");
     TerminalToken print("print", "+((P)(R)(I)(N)(T))");
     TerminalToken RETURN("return", "+((R)(E)(T)(U)(R)(N))");
     TerminalToken IF("if", "+((I)(F))");
@@ -33,8 +31,8 @@ int main() {
 
     TerminalToken newline("newline", "(\n)");
 
-    terminalTokens = {print, whitespace};/*add, sub,  mult, div, comma, digit, relop, alpha, whitespace, print, RETURN, IF, then, GOTO, input,
-                      let, clear, end, list, gosub, STRING};*/
+    terminalTokens = {add, sub,  mult, div, comma, digit, relop, alpha, whitespace, print, RETURN, IF, then, GOTO, input,
+                      let, clear, end, list, gosub, STRING, newline};
 
     NFA nfa(terminalTokens);
     std::ifstream myfile("input.txt");
@@ -44,13 +42,13 @@ int main() {
         std::string fileContent = "";
         std::string line = "";
         while (getline(myfile, line, '\n')) {
-            fileContent += line;
+            fileContent += line+"\n";
         }
 
         std::pair<bool, std::vector<TerminalToken>> result=nfa.generateTokens(fileContent);
         if(result.first){
             for(TerminalToken token:result.second){
-                outfile<<token.getName();
+                outfile<<token.getName()<<"\n";
             }
         }
 
