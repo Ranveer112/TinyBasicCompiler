@@ -49,10 +49,10 @@ Grammer
     additionOrSub ::= add
                       | sub
     
-    term ::= factor successiveTerm
+    term ::= factor smiscSpace successiveTerm
 
     successiveTerm ::= ε 
-                       | miscSpace multiplicationOrDiv miscSpace successiveTerm
+                       | multiplicationOrDiv miscSpace successiveTerm
  
     factor ::= var 
                | number 
