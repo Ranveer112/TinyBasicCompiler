@@ -5,14 +5,17 @@ Grammer
 
 
 ```
-    line ::= (whitespace| ε) number whitespace statement (whitespace| ε) newline 
-           | (whitespace| ε) statement (whitespace| ε) newline
+    prog ::= ε
+             | miscspace line prog
+
+    line ::= number whitespace statement miscspace newline 
+             | statement miscspace newline
  
     statement ::= PRINT whitespace expr-list
-                  | IF whitespace expression (whitespace| ε) relop (whitespace| ε) expression whitespace THEN whitespace statement
+                  | IF whitespace expression miscspace relop miscspace expression whitespace THEN whitespace statement
                   | GOTO whitespace expression
                   | INPUT whitespace var-list
-                  | LET whitespace var (whitespace| ε) = (whitespace| ε) expression
+                  | LET whitespace var miscspace = miscspace expression
                   | GOSUB whitespace expression
                   | RETURN
                   | CLEAR
@@ -20,29 +23,56 @@ Grammer
                   | RUN
                   | END
  
-    expr-list ::= (string|expression)
-                  |(string|expression) comma (whitespace| ε) expr-list
+    expr-list ::= stringOrExp miscspace successiveExpr-list
+
+    successiveExpr-list::= ε
+                           | comma miscspace stringOrExp miscspace successiveExpr-list
+
+    stringOrExp ::= string
+                    | expression 
  
-    var-list ::= var 
-                 | var (whitespace| ε) comma (whitespace| ε) var-list
- 
-    expression ::= (add|sub|ε) term secondexpression
+    var-list ::= var miscspace successiveVar-list
+
+    successiveVar-list ::= ε
+                          | comma miscspace var miscspace successiveVar-list
+
+
+    expression ::= additionOrSubOrEpsilon term secondexpression 
+  
+    additionOrSubOrEpsilon ::= add
+                               | sub
+                               | ε 
 
     secondexpression ::= ε 
-                         | (add|sub) term secondexpression
+                         | additionOrSub term secondexpression
+
+    additionOrSub ::= add
+                      | sub
     
-    term ::= factor 
-            | factor (whitespace| ε) (mult|div) (whitespace| ε) term 
+    term ::= factor successiveTerm
+
+    successiveTerm ::= ε 
+                       | miscSpace multiplicationOrDiv miscSpace successiveTerm
  
     factor ::= var 
                | number 
                | (expression)
  
-    var ::= alpha 
-            | (alpha var)
+    var  ::= alpha successiveVar
+
+    successiveVar ::=  ε
+                       | alpha successiveVar
  
-    number ::= digit 
-               | (digit | number)
+    number ::= digit successiveNumber
+
+    successiveNumber ::= ε
+                         | digit successiveNumber
+
+    miscspace ::= ε
+                  | whitespace
+
+    multiplicationOrDiv ::= mult
+                            | div
 
     Terminals 
 
