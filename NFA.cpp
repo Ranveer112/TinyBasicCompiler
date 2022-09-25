@@ -1,4 +1,4 @@
-#include "TerminalToken.cpp"
+#include "TinyBasicGrammar.cpp"
 #include <unordered_map>
 #include <vector>
 #include <array>
@@ -25,7 +25,8 @@ private:
 
 class NFA {
 public:
-    NFA(std::vector<TerminalToken> terminalTokens) {
+    NFA(const TinyBasicGrammar &g) {
+        std::vector<TerminalToken> terminalTokens=g.getTerminalTokens();
         std::vector<std::array<NFAState *, 2>> individualNFAS;
         for (TerminalToken &t: terminalTokens) {
             individualNFAS.push_back(constructNFA(t.getPattern()));

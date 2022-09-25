@@ -11,17 +11,17 @@ Grammer
     line ::= number whitespace statement miscspace newline 
              | statement miscspace newline
  
-    statement ::= PRINT whitespace expr-list
-                  | IF whitespace expression miscspace relop miscspace expression whitespace THEN whitespace statement
-                  | GOTO whitespace expression
-                  | INPUT whitespace var-list
-                  | LET whitespace var miscspace = miscspace expression
-                  | GOSUB whitespace expression
-                  | RETURN
-                  | CLEAR
-                  | LIST
-                  | RUN
-                  | END
+    statement ::= print whitespace expr-list
+                  | if whitespace expression miscspace relop miscspace expression whitespace then whitespace statement
+                  | go whitespace expression
+                  | input whitespace var-list
+                  | let whitespace var miscspace = miscspace expression
+                  | gosub whitespace expression
+                  | return
+                  | clear
+                  | list
+                  | run
+                  | end
  
     expr-list ::= stringOrExp miscspace successiveExpr-list
 
@@ -37,7 +37,7 @@ Grammer
                           | comma miscspace var miscspace successiveVar-list
 
 
-    expression ::= additionOrSubOrEpsilon term secondexpression 
+    expression ::= additionOrSub term secondexpression 
   
     additionOrSubOrEpsilon ::= add
                                | sub
@@ -49,14 +49,13 @@ Grammer
     additionOrSub ::= add
                       | sub
     
-    term ::= factor smiscSpace successiveTerm
+    term ::= factor miscSpace successiveTerm    
 
     successiveTerm ::= ε 
                        | multiplicationOrDiv miscSpace successiveTerm
  
-    factor ::= var 
-               | number 
-               | (expression)
+    factor ::= number 
+               | expression
  
     var  ::= alpha successiveVar
 
