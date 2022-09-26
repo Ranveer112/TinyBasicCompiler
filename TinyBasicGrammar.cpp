@@ -35,6 +35,14 @@ public:
         return this->productions;
     }
 
+    void pushBackInProduction(int id, GrammarState *g) {
+        while (this->productions.size() <= id) {
+            this->productions.push_back({});
+        }
+        this->productions[id].push_back(g);
+
+    }
+
     GrammarState() {}
 
 private:
@@ -53,6 +61,7 @@ public:
         std::vector<std::string> nonTerminalFileLines;
         std::string line = "";
         const std::string derivesSymbol = ":=";
+        const std::string epsilon = "ε";
         while (std::getline(nonTerminalFiles, line)) {
             nonTerminalFileLines.push_back(line);
         }
@@ -74,7 +83,10 @@ public:
                 if (l[i] == ' ') {
                     if (buffer.size() != 0 && buffer != derivesSymbol) {
                         if (grammarStates.find(buffer) == grammarStates.end()) {
-                            GrammarState *g = new GrammarState(buffer);
+                            GrammarState *g = nullptr;
+                            if (buffer != epsilon) {
+                                g = new GrammarState(buffer);
+                            }
                             grammarStates.insert({buffer, g});
                         }
                     }
@@ -86,7 +98,10 @@ public:
             }
             if (buffer.size() != 0 && buffer != derivesSymbol) {
                 if (grammarStates.find(buffer) == grammarStates.end()) {
-                    GrammarState *g = new GrammarState(buffer);
+                    GrammarState *g = nullptr;
+                    if (buffer != epsilon) {
+                        g = new GrammarState(buffer);
+                    }
                     grammarStates.insert({buffer, g});
                 }
             }
@@ -97,11 +112,13 @@ public:
             std::string lhsSymbol = "";
             if (l.find(derivesSymbol) == std::string::npos) {
                 productionId++;
+            } else {
+                productionId = 0;
             }
             for (size_t i = 0; i < l.size(); i++) {
                 if (l[i] == ' ') {
                     if (buffer.size() != 0 && buffer != derivesSymbol) {
-                        grammarStates[lhsSymbol]->getProductions()[productionId].push_back(grammarStates[buffer]);
+                        grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
                     } else if (buffer == derivesSymbol) {
                         lhsSymbol = buffer;
                     }
@@ -112,7 +129,7 @@ public:
                 }
             }
             if (buffer.size() != 0 && buffer != derivesSymbol) {
-                grammarStates[lhsSymbol]->getProductions()[productionId].push_back(grammarStates[buffer]);
+                grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
             }
         }
     }
