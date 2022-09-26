@@ -13,7 +13,7 @@ Grammer
  
     statement ::= print whitespace expr-list
                   | if whitespace expression miscspace relop miscspace expression whitespace then whitespace statement
-                  | go whitespace expression
+                  | goto whitespace expression
                   | input whitespace var-list
                   | let whitespace var miscspace = miscspace expression
                   | gosub whitespace expression
