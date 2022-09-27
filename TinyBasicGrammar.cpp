@@ -9,6 +9,7 @@
 #include <istream>
 #include "TerminalToken.cpp"
 #include <map>
+#include <set>
 
 class GrammarState {
 public:
@@ -50,18 +51,21 @@ private:
     std::string name;
     std::string pattern; //if terminal
     std::vector<std::vector<GrammarState *>> productions;
+    std::set<std::string> firstSets;
+    std::vector<std::set<std::string>>
+            productionsFirstSets;
 
     friend class TinyBasicGrammar;
 };
 
 class TinyBasicGrammar {
 public:
+    TinyBasicGrammar() {}
+
     TinyBasicGrammar(std::ifstream &nonTerminalFiles, std::ifstream &terminalFiles) {
         std::map<std::string, GrammarState *> grammarStates;
         std::vector<std::string> nonTerminalFileLines;
         std::string line = "";
-        const std::string derivesSymbol = "::=";
-        const std::string epsilon = "ε";
         while (std::getline(nonTerminalFiles, line)) {
             nonTerminalFileLines.push_back(line);
         }
@@ -77,7 +81,7 @@ public:
             if (grammarStates.find(symbol) == grammarStates.end()) {
                 GrammarState *g = new GrammarState(symbol, pattern);
                 grammarStates.insert({symbol, g});
-                this->terminalStates.push_back(*grammarStates[symbol]);
+                this->terminalStates.push_back(grammarStates[symbol]);
             }
         }
         for (std::string &l: nonTerminalFileLines) {
@@ -135,14 +139,63 @@ public:
                 grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
             }
         }
+
     }
 
     std::vector<GrammarState> getTerminalStates() {
-        std::vector<GrammarState> copyTerminalStates = this->terminalStates;
+        std::vector<GrammarState> copyTerminalStates;
+        for (GrammarState *terminalState: this->terminalStates) {
+            copyTerminalStates.push_back(*terminalState);
+        }
         return copyTerminalStates;
     }
 
 private:
+    void computeFirstSets(std::map<std::string, GrammarState *> allStates) {
+        bool areChanging = false;
+        for (GrammarState *terminalState: terminalStates) {
+            terminalState->firstSets.insert(terminalState->name);
+            areChanging = true;
+        }
+        while (areChanging) {
+            areChanging = false;
+            for (auto[symbolName, g]: allStates)
+                for (int productionIdForSymbol = 0;
+                     productionIdForSymbol < g->productions.size(); productionIdForSymbol++) {
+                    std::vector<GrammarState *> &currProduction = g->productions[productionIdForSymbol];
+                    std::vector<GrammarState *>::iterator rhsSymbolInProduction = currProduction.begin();
+                    while (rhsSymbolInProduction != currProduction.end() && (*rhsSymbolInProduction) == nullptr ||
+                           (*rhsSymbolInProduction)->firstSets.find(epsilon) !=
+                           (*rhsSymbolInProduction)->firstSets.end()) {
+                        if ((*rhsSymbolInProduction) == nullptr) {
+                            g->firstSets.insert(epsilon);
+                            areChanging = true;
+                        } else {
+                            for (std::string element: (*rhsSymbolInProduction)->firstSets) {
+                                g->firstSets.insert(element);
+                                areChanging = true;
+                            }
+                        }
+                        rhsSymbolInProduction++;
+                    }
+                    if (rhsSymbolInProduction != currProduction.end()) {
+                        if ((*rhsSymbolInProduction) == nullptr) {
+                            g->firstSets.insert(epsilon);
+                            areChanging = true;
+                        } else {
+                            for (std::string element: (*rhsSymbolInProduction)->firstSets) {
+                                g->firstSets.insert(element);
+                                areChanging = true;
+                            }
+                        }
+                    }
+                }
+        }
+
+    }
+
+    const std::string derivesSymbol = "::=";
+    const std::string epsilon = "ε";
     GrammarState *startingState;
-    std::vector<GrammarState> terminalStates;
+    std::vector<GrammarState *> terminalStates;
 };

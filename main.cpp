@@ -5,19 +5,21 @@
 #include <ostream>
 
 int main() {
-    TinyBasicGrammar grammar();
-    NFA nfa(grammar);
-    std::ifstream myfile("input.txt");
+    TinyBasicGrammar g;
+    NFA nfa(g);
+    std::ifstream codeFile("input.txt");
+    std::ifstream terminalFile("terminals.txt");
+    std::ifstream  nonTerminalFile("nonTerminals.txt");
     std::ofstream outfile;
     outfile.open("output.txt");
-    if (myfile.is_open()) {
+    if (codeFile.is_open()) {
         std::string fileContent = "";
         std::string line = "";
         while (getline(myfile, line, '\n')) {
             fileContent += line + "\n";
         }
 
-        std::pair<bool, std::vector<TerminalToken>> result = nfa.generateTokens(fileContent);
+        std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> result = nfa.generateTokens(fileContent);
         if (result.first) {
             for (TerminalToken token: result.second) {
                 outfile << token.getName() << "\n";

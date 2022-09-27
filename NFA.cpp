@@ -25,8 +25,8 @@ private:
 
 class NFA {
 public:
-    NFA(TinyBasicGrammar &g) {
-        std::vector<GrammarState> terminalTokens=g.getTerminalStates();
+    NFA(TinyBasicGrammar& g) {
+        std::vector<GrammarState> terminalTokens = g.getTerminalStates();
         std::vector<std::array<NFAState *, 2>> individualNFAS;
         for (GrammarState &t: terminalTokens) {
             individualNFAS.push_back(constructNFA(t.getPattern()));
@@ -71,7 +71,7 @@ public:
         };
         updateCurrAndEpsilonReachAble(this->startingState);
         ptr++;
-        std::string buffer="";
+        int previousPtr = 0;
         while (ptr < (int) (fileContent.size())) {
             int currSize = currLevelStates.size();
             std::fill(visited.begin(), visited.end(), false);
@@ -79,7 +79,7 @@ public:
                 NFAState *curr = currLevelStates.front();
                 currLevelStates.pop();
                 if (curr->nextStates.find(fileContent[ptr]) != curr->nextStates.end()) {
-                    for (NFAState *neighboringToCurrState: curr->nextStates[fileContent[ptr]]){
+                    for (NFAState *neighboringToCurrState: curr->nextStates[fileContent[ptr]]) {
                         updateCurrAndEpsilonReachAble(neighboringToCurrState);
                     }
                 }
@@ -92,7 +92,9 @@ public:
                     return {false, {}};
                 }
                 ptr = acceptingState.first + 1;
-                tokens.push_back({acceptingState.second->terminalState);
+                tokens.push_back(
+                        {acceptingState.second->terminalState, fileContent.substr(previousPtr, ptr - previousPtr)});
+                previousPtr = ptr;
                 std::fill(visited.begin(), visited.end(), false);
                 updateCurrAndEpsilonReachAble(this->startingState);
                 acceptingState = {-1, nullptr};
@@ -102,7 +104,8 @@ public:
         if (acceptingState.first == -1 && acceptingState.second == nullptr) {
             return {false, {}};
         }
-        tokens.push_back(acceptingState.second->tok);
+        tokens.push_back(
+                {acceptingState.second->terminalState, fileContent.substr(previousPtr, ptr - previousPtr)});
         return {true, tokens};
     }
 
