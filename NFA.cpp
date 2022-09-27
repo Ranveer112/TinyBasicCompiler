@@ -14,7 +14,7 @@ class NFAState {
     ~NFAState() {}
 
 private:
-    TerminalToken tok;
+    GrammarState terminalState;
     int stateId;
     std::unordered_map<char, std::vector<NFAState *>> nextStates;
     bool isAccepting;
@@ -25,12 +25,12 @@ private:
 
 class NFA {
 public:
-    NFA(const TinyBasicGrammar &g) {
-        std::vector<TerminalToken> terminalTokens=g.getTerminalTokens();
+    NFA(TinyBasicGrammar &g) {
+        std::vector<GrammarState> terminalTokens=g.getTerminalStates();
         std::vector<std::array<NFAState *, 2>> individualNFAS;
-        for (TerminalToken &t: terminalTokens) {
+        for (GrammarState &t: terminalTokens) {
             individualNFAS.push_back(constructNFA(t.getPattern()));
-            individualNFAS.back()[1]->tok = t;
+            individualNFAS.back()[1]->terminalState = t;
         }
         this->startingState = new NFAState;
         while (individualNFAS.size() > 0) {
@@ -50,8 +50,8 @@ public:
     }
 
 
-    std::pair<bool, std::vector<TerminalToken>> generateTokens(const std::string &fileContent) {
-        std::vector<TerminalToken> tokens;
+    std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> generateTokens(const std::string &fileContent) {
+        std::vector<std::pair<GrammarState, std::string>> tokens;
         int ptr = -1;
         std::queue<NFAState *> currLevelStates;
         std::vector<bool> visited(totalStates.size(), false);
@@ -71,6 +71,7 @@ public:
         };
         updateCurrAndEpsilonReachAble(this->startingState);
         ptr++;
+        std::string buffer="";
         while (ptr < (int) (fileContent.size())) {
             int currSize = currLevelStates.size();
             std::fill(visited.begin(), visited.end(), false);
@@ -91,7 +92,7 @@ public:
                     return {false, {}};
                 }
                 ptr = acceptingState.first + 1;
-                tokens.push_back(acceptingState.second->tok);
+                tokens.push_back({acceptingState.second->terminalState);
                 std::fill(visited.begin(), visited.end(), false);
                 updateCurrAndEpsilonReachAble(this->startingState);
                 acceptingState = {-1, nullptr};
