@@ -25,7 +25,7 @@ private:
 
 class NFA {
 public:
-    NFA(TinyBasicGrammar& g) {
+    NFA(const TinyBasicGrammar& g) {
         std::vector<GrammarState> terminalTokens = g.getTerminalStates();
         std::vector<std::array<NFAState *, 2>> individualNFAS;
         for (GrammarState &t: terminalTokens) {

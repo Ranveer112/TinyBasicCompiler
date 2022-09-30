@@ -11,32 +11,36 @@
 #include <map>
 #include <set>
 
+
+const std::string derivesSymbol = "::=";
+const std::string epsilon = "ε";
+
 class GrammarState {
 public:
     GrammarState(const std::string &name, const std::string &pattern) {
         this->name = name;
         this->pattern = pattern;
-        this->isTerminal = false;
+        this->terminal = false;
     }
 
     GrammarState(const std::string &name) {
         this->name = name;
-        this->isTerminal = true;
+        this->terminal = true;
     }
 
-    std::string getName() {
+    std::string getName() const {
         return this->name;
     }
 
-    std::string getPattern() {
+    std::string getPattern() const {
         return this->pattern;
     }
 
-    std::vector<std::vector<GrammarState *>> getProductions() {
+    const std::vector<std::vector<GrammarState *>> getProductions() const {
         return this->productions;
     }
 
-    void pushBackInProduction(int id, GrammarState *g) {
+    void pushBackInProduction(const int &id, GrammarState *g) {
         while (this->productions.size() <= id) {
             this->productions.push_back({});
         }
@@ -44,14 +48,37 @@ public:
 
     }
 
+    bool isEpsilon(const int &productionId) const {
+        return this->productionsFirstSets[productionId].size() == 1 &&
+               this->productionsFirstSets[productionId].find(epsilon) ==
+               this->productionsFirstSets[productionId].end();
+    }
+
+    bool isViableProduction(const GrammarState &token, int productionId) const {
+        if (productionId < this->productions.size()) {
+            if (isEpsilon((productionId))) {
+                return false;
+            } else {
+                return this->productionsFirstSets[productionId].find(token.getName()) !=
+                       this->productionsFirstSets[productionId].end();
+            }
+        } else {
+            return false;
+        }
+    }
+
+    bool isTerminal() const {
+        return this->terminal;
+    }
+
     GrammarState() {}
 
 private:
-    bool isTerminal;
+    bool terminal;
     std::string name;
     std::string pattern; //if terminal
     std::vector<std::vector<GrammarState *>> productions;
-    std::set<std::string> firstSets;
+    std::set<std::string> firstSet;
     std::vector<std::set<std::string>>
             productionsFirstSets;
 
@@ -142,7 +169,7 @@ public:
 
     }
 
-    std::vector<GrammarState> getTerminalStates() {
+    std::vector<GrammarState> getTerminalStates() const {
         std::vector<GrammarState> copyTerminalStates;
         for (GrammarState *terminalState: this->terminalStates) {
             copyTerminalStates.push_back(*terminalState);
@@ -154,7 +181,7 @@ private:
     void computeFirstSets(std::map<std::string, GrammarState *> allStates) {
         bool areChanging = false;
         for (GrammarState *terminalState: terminalStates) {
-            terminalState->firstSets.insert(terminalState->name);
+            terminalState->firstSet.insert(terminalState->name);
             areChanging = true;
         }
         while (areChanging) {
@@ -165,14 +192,14 @@ private:
                     std::vector<GrammarState *> &currProduction = g->productions[productionIdForSymbol];
                     std::vector<GrammarState *>::iterator rhsSymbolInProduction = currProduction.begin();
                     while (rhsSymbolInProduction != currProduction.end() && (*rhsSymbolInProduction) == nullptr ||
-                           (*rhsSymbolInProduction)->firstSets.find(epsilon) !=
-                           (*rhsSymbolInProduction)->firstSets.end()) {
+                           (*rhsSymbolInProduction)->firstSet.find(epsilon) !=
+                           (*rhsSymbolInProduction)->firstSet.end()) {
                         if ((*rhsSymbolInProduction) == nullptr) {
-                            g->firstSets.insert(epsilon);
+                            g->firstSet.insert(epsilon);
                             areChanging = true;
                         } else {
-                            for (std::string element: (*rhsSymbolInProduction)->firstSets) {
-                                g->firstSets.insert(element);
+                            for (std::string element: (*rhsSymbolInProduction)->firstSet) {
+                                g->firstSet.insert(element);
                                 areChanging = true;
                             }
                         }
@@ -180,11 +207,11 @@ private:
                     }
                     if (rhsSymbolInProduction != currProduction.end()) {
                         if ((*rhsSymbolInProduction) == nullptr) {
-                            g->firstSets.insert(epsilon);
+                            g->firstSet.insert(epsilon);
                             areChanging = true;
                         } else {
-                            for (std::string element: (*rhsSymbolInProduction)->firstSets) {
-                                g->firstSets.insert(element);
+                            for (std::string element: (*rhsSymbolInProduction)->firstSet) {
+                                g->firstSet.insert(element);
                                 areChanging = true;
                             }
                         }
@@ -194,8 +221,6 @@ private:
 
     }
 
-    const std::string derivesSymbol = "::=";
-    const std::string epsilon = "ε";
     GrammarState *startingState;
     std::vector<GrammarState *> terminalStates;
 };
