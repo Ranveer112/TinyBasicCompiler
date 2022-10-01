@@ -176,8 +176,12 @@ public:
         }
         return copyTerminalStates;
     }
+    GrammarState* getStartingState(){
+        return this->startingState;
+    }
 
 private:
+
     void computeFirstSets(std::map<std::string, GrammarState *> allStates) {
         bool areChanging = false;
         for (GrammarState *terminalState: terminalStates) {
