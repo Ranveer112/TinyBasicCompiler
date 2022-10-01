@@ -82,14 +82,14 @@ private:
     std::vector<std::set<std::string>>
             productionsFirstSets;
 
-    friend class TinyBasicGrammar;
+    friend class Grammar;
 };
 
-class TinyBasicGrammar {
+class Grammar {
 public:
-    TinyBasicGrammar() {}
+    Grammar() {}
 
-    TinyBasicGrammar(std::ifstream &nonTerminalFiles, std::ifstream &terminalFiles) {
+    Grammar(std::ifstream &nonTerminalFiles, std::ifstream &terminalFiles) {
         std::map<std::string, GrammarState *> grammarStates;
         std::vector<std::string> nonTerminalFileLines;
         std::string line = "";

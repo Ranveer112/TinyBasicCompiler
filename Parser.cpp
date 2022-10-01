@@ -1,7 +1,7 @@
 //
 // Created by ranve on 9/28/2022.
 //
-#include "NFA.cpp"
+#include "Grammar.cpp"
 
 class ASTNode {
     std::vector<ASTNode *> getSubtree() {
@@ -19,20 +19,14 @@ private:
 
 class Parser {
 public:
-    Parser(std::string fileContent, const TinyBasicGrammar &grammar) {
-        NFA nfa(grammar);
-        std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> tokens=nfa.generateTokens(fileContent);
-        if(tokens.first){
-
-        }
-        else{
-
-        }
+    Parser(Grammar &grammar) {
+        this->grammar = grammar;
     }
 
-    bool parse() {
-
-
+    bool parse(const std::vector<std::pair<GrammarState, std::string>> &tokens) {
+        this->root = new ASTNode;
+        int tokenId = 0;
+        return canParse(this->grammar.getStartingState(), tokenId, root, tokens);
     }
 
     bool canParse(GrammarState *currentSymbol, int &tokenId,
@@ -60,7 +54,7 @@ public:
             if (productionToChoose == -1) {
                 for (int productionId = 0; productionId < currentSymbol->getProductions().size(); productionId++) {
                     if (currentSymbol->isEpsilon(productionId)) {
-                        currNode->symbolName = Parser::epsilon;
+                        currNode->symbolName = epsilon;
                         return true;
                     } else {
                         return false;
@@ -82,7 +76,14 @@ public:
             }
         }
     }
+    std::string getStringOfAST() const{
+
+    }
+    const ASTNode *getRoot() {
+        return this->root;
+    }
 
 private:
     ASTNode *root;
+    Grammar grammar;
 };

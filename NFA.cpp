@@ -1,4 +1,4 @@
-#include "TinyBasicGrammar.cpp"
+#include "Grammar.cpp"
 #include <unordered_map>
 #include <vector>
 #include <array>
@@ -25,7 +25,7 @@ private:
 
 class NFA {
 public:
-    NFA(const TinyBasicGrammar& g) {
+    NFA(const Grammar& g) {
         std::vector<GrammarState> terminalTokens = g.getTerminalStates();
         std::vector<std::array<NFAState *, 2>> individualNFAS;
         for (GrammarState &t: terminalTokens) {
@@ -50,7 +50,7 @@ public:
     }
 
 
-    std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> generateTokens(const std::string &fileContent) {
+    const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> generateTokens(const std::string &fileContent) const{
         std::vector<std::pair<GrammarState, std::string>> tokens;
         int ptr = -1;
         std::queue<NFAState *> currLevelStates;
