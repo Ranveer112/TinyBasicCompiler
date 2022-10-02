@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include "NFA.cpp"
 #include "Grammar.cpp"
@@ -6,11 +7,14 @@
 #include <ostream>
 
 int main() {
-    Grammar g;
-    NFA nfa(g);
     std::ifstream codeFile("input.txt");
     std::ifstream terminalFile("terminals.txt");
-    std::ifstream  nonTerminalFile("nonTerminals.txt");
+    std::ifstream nonTerminalFile("nonTerminals.txt");
+
+    Grammar g(nonTerminalFile, terminalFile);
+    std::cout<<g<<std::endl;
+    //NFA nfa(g);
+    /*
     std::ofstream outfile;
     outfile.open("output.txt");
     if (codeFile.is_open()) {
@@ -20,21 +24,22 @@ int main() {
             fileContent += line + "\n";
         }
 
-        const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> result = nfa.generateTokens(fileContent);
+        const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> result = nfa.generateTokens(
+                fileContent);
         if (result.first) {
-            std::cout<<"Code lexed properly"<<std::endl;
+            std::cout << "Code lexed properly" << std::endl;
             Parser parser(g);
             parser.parse(result.second);
+            std::cout << parser.getStringOfAST();
 
 
-
-        }
-        else{
-            std::cout<<"Code not lexed properly"<<std::endl;
+        } else {
+            std::cout << "Code not lexed properly" << std::endl;
         }
 
     } else {
         std::cout << "File cannot be found" << std::endl;
     }
+     */
     return 0;
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include "Grammar.cpp"
 #include <unordered_map>
 #include <vector>

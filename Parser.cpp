@@ -1,6 +1,7 @@
 //
 // Created by ranve on 9/28/2022.
 //
+#pragma once
 #include "Grammar.cpp"
 
 class ASTNode {
@@ -76,9 +77,25 @@ public:
             }
         }
     }
-    std::string getStringOfAST() const{
 
+    std::string getStringOfAST() const {
+        return getStringHelper(this->root);
     }
+
+    std::string getStringHelper(const ASTNode *node) const {
+        std::vector<ASTNode *> subtreeNodes;
+        std::string result = "";
+        result += "{\n";
+        result += "\tSymbolName: " + node->symbolName + "\n";
+        result += "\tCode :" + node->code + "\n";
+        result += "\tSubtree :\n";
+        for (ASTNode *subtreeNode: subtreeNodes) {
+            result += "\t" + getStringHelper(subtreeNode) + "\n";
+        }
+        result += "}\n";
+        return result;
+    }
+
     const ASTNode *getRoot() {
         return this->root;
     }

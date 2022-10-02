@@ -1,15 +1,17 @@
 //
 // Created by ranve on 9/25/2022.
 //
+#pragma once
+
 #include <iostream>
 #include <fstream>
 #include <ostream>
 #include <string>
 #include <vector>
 #include <istream>
-#include "TerminalToken.cpp"
 #include <map>
 #include <set>
+#include <unordered_set>
 
 
 const std::string derivesSymbol = "::=";
@@ -20,12 +22,12 @@ public:
     GrammarState(const std::string &name, const std::string &pattern) {
         this->name = name;
         this->pattern = pattern;
-        this->terminal = false;
+        this->terminal = true;
     }
 
     GrammarState(const std::string &name) {
         this->name = name;
-        this->terminal = true;
+        this->terminal = false;
     }
 
     std::string getName() const {
@@ -67,6 +69,7 @@ public:
         }
     }
 
+
     bool isTerminal() const {
         return this->terminal;
     }
@@ -97,7 +100,7 @@ public:
             nonTerminalFileLines.push_back(line);
         }
         std::vector<std::string> terminalFileLines;
-        while (std::getline(nonTerminalFiles, line)) {
+        while (std::getline(terminalFiles, line)) {
             if (line.find(derivesSymbol) != std::string::npos) {
                 terminalFileLines.push_back(line);
             }
@@ -121,6 +124,9 @@ public:
                             if (buffer != epsilon) {
                                 g = new GrammarState(buffer);
                             }
+                            if (this->startingState == nullptr) {
+                                this->startingState = g;
+                            }
                             grammarStates.insert({buffer, g});
                         }
                     }
@@ -141,20 +147,23 @@ public:
             }
         }
         int productionId = 0;
+        std::string lhsSymbol = "";
         for (std::string &l: nonTerminalFileLines) {
             std::string buffer = "";
-            std::string lhsSymbol = "";
             if (l.find(derivesSymbol) == std::string::npos) {
                 productionId++;
             } else {
                 productionId = 0;
+                lhsSymbol = "";
             }
             for (size_t i = 0; i < l.size(); i++) {
                 if (l[i] == ' ') {
                     if (buffer.size() != 0 && buffer != derivesSymbol) {
-                        grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
-                    } else if (buffer == derivesSymbol) {
-                        lhsSymbol = buffer;
+                        if (lhsSymbol.size() != 0) {
+                            grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
+                        } else {
+                            lhsSymbol = buffer;
+                        }
                     }
                     buffer = "";
 
@@ -162,6 +171,7 @@ public:
                     buffer += l[i];
                 }
             }
+
             if (buffer.size() != 0 && buffer != derivesSymbol) {
                 grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
             }
@@ -176,11 +186,46 @@ public:
         }
         return copyTerminalStates;
     }
-    GrammarState* getStartingState(){
+
+    GrammarState *getStartingState() {
         return this->startingState;
     }
 
+    friend std::ostream &operator<<(std::ostream &stream, Grammar &g) {
+        std::unordered_set<std::string> visited;
+        g.printHelper(stream, g.getStartingState(), visited);
+        return stream;
+    }
+
+
 private:
+    void printHelper(std::ostream &ostream, GrammarState *state, std::unordered_set<std::string> &visited) {
+        visited.insert(state->getName());
+        ostream << state->getName() << " ::=";
+        if (state->isTerminal()) {
+            ostream << state->getPattern() << "\n";
+            return;
+        } else {
+            for (std::vector<GrammarState *> &production: state->productions) {
+                for (GrammarState *symbolInProduction: production) {
+                    if (symbolInProduction == nullptr) {
+                        ostream << epsilon << " ";
+                    } else {
+                        ostream << symbolInProduction->getName() << " ";
+                    }
+                }
+                ostream << "\n";
+            }
+            for (std::vector<GrammarState *> &production: state->productions) {
+                for (GrammarState *symbolInProduction: production) {
+                    if (symbolInProduction != nullptr && visited.find(symbolInProduction->getName()) == visited.end()) {
+                        ostream<<"\n";
+                        printHelper(ostream, symbolInProduction, visited);
+                    }
+                }
+            }
+        }
+    }
 
     void computeFirstSets(std::map<std::string, GrammarState *> allStates) {
         bool areChanging = false;
@@ -225,6 +270,6 @@ private:
 
     }
 
-    GrammarState *startingState;
+    GrammarState *startingState = nullptr;
     std::vector<GrammarState *> terminalStates;
 };
