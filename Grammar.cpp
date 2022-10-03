@@ -176,6 +176,7 @@ public:
                 grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
             }
         }
+        computeFirstSets(grammarStates);
 
     }
 
@@ -219,7 +220,7 @@ private:
             for (std::vector<GrammarState *> &production: state->productions) {
                 for (GrammarState *symbolInProduction: production) {
                     if (symbolInProduction != nullptr && visited.find(symbolInProduction->getName()) == visited.end()) {
-                        ostream<<"\n";
+                        ostream << "\n";
                         printHelper(ostream, symbolInProduction, visited);
                     }
                 }
@@ -227,7 +228,7 @@ private:
         }
     }
 
-    void computeFirstSets(std::map<std::string, GrammarState *> allStates) {
+    void computeFirstSets(std::map<std::string, GrammarState *> &allStates) {
         bool areChanging = false;
         for (GrammarState *terminalState: terminalStates) {
             terminalState->firstSet.insert(terminalState->name);
@@ -235,37 +236,45 @@ private:
         }
         while (areChanging) {
             areChanging = false;
-            for (auto[symbolName, g]: allStates)
-                for (int productionIdForSymbol = 0;
-                     productionIdForSymbol < g->productions.size(); productionIdForSymbol++) {
-                    std::vector<GrammarState *> &currProduction = g->productions[productionIdForSymbol];
-                    std::vector<GrammarState *>::iterator rhsSymbolInProduction = currProduction.begin();
-                    while (rhsSymbolInProduction != currProduction.end() && (*rhsSymbolInProduction) == nullptr ||
-                           (*rhsSymbolInProduction)->firstSet.find(epsilon) !=
-                           (*rhsSymbolInProduction)->firstSet.end()) {
-                        if ((*rhsSymbolInProduction) == nullptr) {
-                            g->firstSet.insert(epsilon);
-                            areChanging = true;
-                        } else {
+            for (auto[symbolName, g]: allStates) {
+                if (g != nullptr) {
+                    for (int productionIdForSymbol = 0;
+                         productionIdForSymbol < g->productions.size(); productionIdForSymbol++) {
+                        std::vector<GrammarState *> &currProduction = g->productions[productionIdForSymbol];
+
+                        std::vector<GrammarState *>::iterator rhsSymbolInProduction = currProduction.begin();
+
+                        while (rhsSymbolInProduction != currProduction.end() && ((*rhsSymbolInProduction) == nullptr ||
+                                                                                 (*rhsSymbolInProduction)->firstSet.find(
+                                                                                         epsilon) !=
+                                                                                 (*rhsSymbolInProduction)->firstSet.end())) {
+                            if ((*rhsSymbolInProduction) != nullptr) {
+                                for (std::string element: (*rhsSymbolInProduction)->firstSet) {
+                                    if (element != epsilon && g->firstSet.find(element) == g->firstSet.end()) {
+                                        g->firstSet.insert(element);
+                                        areChanging = true;
+                                    }
+                                }
+                            }
+                            rhsSymbolInProduction++;
+                        }
+                        if (rhsSymbolInProduction != currProduction.end()) {
                             for (std::string element: (*rhsSymbolInProduction)->firstSet) {
-                                g->firstSet.insert(element);
+                                if (g->firstSet.find(element) == g->firstSet.end()) {
+                                    g->firstSet.insert(element);
+                                    areChanging = true;
+                                }
+                            }
+                        } else {
+                            if (g->firstSet.find(epsilon) == g->firstSet.end()) {
+                                g->firstSet.insert(epsilon);
                                 areChanging = true;
                             }
                         }
-                        rhsSymbolInProduction++;
-                    }
-                    if (rhsSymbolInProduction != currProduction.end()) {
-                        if ((*rhsSymbolInProduction) == nullptr) {
-                            g->firstSet.insert(epsilon);
-                            areChanging = true;
-                        } else {
-                            for (std::string element: (*rhsSymbolInProduction)->firstSet) {
-                                g->firstSet.insert(element);
-                                areChanging = true;
-                            }
-                        }
+
                     }
                 }
+            }
         }
 
     }
