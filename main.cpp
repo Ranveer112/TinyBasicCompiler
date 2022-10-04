@@ -12,7 +12,7 @@ int main() {
     std::ifstream nonTerminalFile("nonTerminals.txt");
 
     Grammar g(nonTerminalFile, terminalFile);
-    std::cout<<g<<std::endl;
+    //std::cout<<g<<std::endl;
     //NFA nfa(g);
     /*
     std::ofstream outfile;

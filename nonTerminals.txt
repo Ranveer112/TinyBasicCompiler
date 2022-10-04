@@ -37,10 +37,10 @@ secondexpression ::= ε
 additionOrSub ::= add
                   sub
     
-term ::= factor miscSpace successiveTerm    
+term ::= factor miscspace successiveTerm
 
 successiveTerm ::= ε 
-                   multiplicationOrDiv miscSpace successiveTerm
+                   multiplicationOrDiv miscspace successiveTerm
  
 factor ::= number
            expression

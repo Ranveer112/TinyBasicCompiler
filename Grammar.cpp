@@ -13,7 +13,6 @@
 #include <set>
 #include <unordered_set>
 
-
 const std::string derivesSymbol = "::=";
 const std::string epsilon = "ε";
 
@@ -67,6 +66,17 @@ public:
         } else {
             return false;
         }
+    }
+
+    void addInFirstSet(std::string symbol) {
+        this->firstSet.insert(symbol);
+    }
+
+    void addInProductionFirstSet(int productionId, std::string symbol) {
+        while (this->productionsFirstSets.size() <= productionId) {
+            this->productionsFirstSets.push_back({});
+        }
+        this->productionsFirstSets[productionId].insert(symbol);
     }
 
 
@@ -251,7 +261,8 @@ private:
                             if ((*rhsSymbolInProduction) != nullptr) {
                                 for (std::string element: (*rhsSymbolInProduction)->firstSet) {
                                     if (element != epsilon && g->firstSet.find(element) == g->firstSet.end()) {
-                                        g->firstSet.insert(element);
+                                        g->addInFirstSet(element);
+                                        g->addInProductionFirstSet(productionIdForSymbol, element);
                                         areChanging = true;
                                     }
                                 }
@@ -261,14 +272,17 @@ private:
                         if (rhsSymbolInProduction != currProduction.end()) {
                             for (std::string element: (*rhsSymbolInProduction)->firstSet) {
                                 if (g->firstSet.find(element) == g->firstSet.end()) {
-                                    g->firstSet.insert(element);
+                                    g->addInFirstSet(element);
+                                    g->addInProductionFirstSet(productionIdForSymbol, element);
                                     areChanging = true;
                                 }
                             }
                         } else {
                             if (g->firstSet.find(epsilon) == g->firstSet.end()) {
-                                g->firstSet.insert(epsilon);
+                                g->addInFirstSet(epsilon);
+                                g->addInProductionFirstSet(productionIdForSymbol, epsilon);
                                 areChanging = true;
+
                             }
                         }
 
