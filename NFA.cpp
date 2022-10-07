@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Grammar.cpp"
 #include <unordered_map>
 #include <vector>
@@ -26,7 +27,7 @@ private:
 
 class NFA {
 public:
-    NFA(const Grammar& g) {
+    NFA(const Grammar &g) {
         std::vector<GrammarState> terminalTokens = g.getTerminalStates();
         std::vector<std::array<NFAState *, 2>> individualNFAS;
         for (GrammarState &t: terminalTokens) {
@@ -51,7 +52,8 @@ public:
     }
 
 
-    const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> generateTokens(const std::string &fileContent) const{
+    const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>>
+    generateTokens(const std::string &fileContent) const {
         std::vector<std::pair<GrammarState, std::string>> tokens;
         int ptr = -1;
         std::queue<NFAState *> currLevelStates;
@@ -73,6 +75,7 @@ public:
         updateCurrAndEpsilonReachAble(this->startingState);
         ptr++;
         int previousPtr = 0;
+
         while (ptr < (int) (fileContent.size())) {
             int currSize = currLevelStates.size();
             std::fill(visited.begin(), visited.end(), false);
@@ -95,6 +98,7 @@ public:
                 ptr = acceptingState.first + 1;
                 tokens.push_back(
                         {acceptingState.second->terminalState, fileContent.substr(previousPtr, ptr - previousPtr)});
+                //std::cout<<tokens.back().second<<std::endl;
                 previousPtr = ptr;
                 std::fill(visited.begin(), visited.end(), false);
                 updateCurrAndEpsilonReachAble(this->startingState);
@@ -122,16 +126,16 @@ private:
         std::function<void(std::array<NFAState *, 2> &)> mergeStates = [&](
                 std::array<NFAState *, 2> &currExpressionStates) -> void {
             if (st.top().first[0] == nullptr) {
-                if (st.top().second == '*') {
+                if (st.top().second == KLEENE_OP[0]) {
                     st.top().first = joinKleene(currExpressionStates[0], currExpressionStates[1]);
                 } else {
                     st.top().first = currExpressionStates;
                 }
             } else {
-                if (st.top().second == '+') {
+                if (st.top().second == UNITE_OP[0]) {
                     st.top().first = joinConcat(st.top().first[0], st.top().first[1], currExpressionStates[0],
                                                 currExpressionStates[1]);
-                } else if (st.top().second == '|') {
+                } else if (st.top().second == OR_OP[0]) {
                     st.top().first = joinOr(st.top().first[0], st.top().first[1], currExpressionStates[0],
                                             currExpressionStates[1]);
                 } else {
@@ -141,12 +145,11 @@ private:
             }
         };
         for (int i = 0; i < (int) (pattern.size()); i++) {
-
-            if (pattern[i] == '(') {
+            if (pattern[i] == OPEN_PARENTHESIS[0]) {
                 st.push({{nullptr, nullptr}, currentExpressionOp});
                 currentExpressionOp = NULL;
                 isCharacterPending = true;
-            } else if (pattern[i] == ')') {
+            } else if (pattern[i] == CLOSE_PARENTHESIS[0]) {
                 std::array<NFAState *, 2> currExpressionStates = (isCharacterPending == false ? st.top().first
                                                                                               : constructNFASingleChar(
                                 currentExpressionValue));
@@ -156,7 +159,7 @@ private:
                 isCharacterPending = false;
 
 
-            } else if (pattern[i] == '+' || pattern[i] == '*' || pattern[i] == '|') {
+            } else if (pattern[i] == UNITE_OP[0] || pattern[i] == KLEENE_OP[0] || pattern[i] == OR_OP[0]) {
                 currentExpressionOp = pattern[i];
             } else if (pattern[i] == '\\') {
                 i++;

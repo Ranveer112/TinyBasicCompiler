@@ -12,9 +12,7 @@ int main() {
     std::ifstream nonTerminalFile("nonTerminals.txt");
 
     Grammar g(nonTerminalFile, terminalFile);
-    //std::cout<<g<<std::endl;
-    //NFA nfa(g);
-    /*
+    NFA nfa(g);
     std::ofstream outfile;
     outfile.open("output.txt");
     if (codeFile.is_open()) {
@@ -23,11 +21,12 @@ int main() {
         while (getline(codeFile, line, '\n')) {
             fileContent += line + "\n";
         }
-
-        const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> result = nfa.generateTokens(
-                fileContent);
+        const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> result=nfa.generateTokens(fileContent);
         if (result.first) {
             std::cout << "Code lexed properly" << std::endl;
+            for(std::pair<GrammarState, std::string> t:result.second){
+                std::cout<<t.first.getName()<<std::endl;
+            }
             Parser parser(g);
             parser.parse(result.second);
             std::cout << parser.getStringOfAST();
@@ -40,6 +39,6 @@ int main() {
     } else {
         std::cout << "File cannot be found" << std::endl;
     }
-     */
+
     return 0;
 }

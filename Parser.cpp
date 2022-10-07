@@ -55,7 +55,7 @@ public:
             if (productionToChoose == -1) {
                 for (int productionId = 0; productionId < currentSymbol->getProductions().size(); productionId++) {
                     if (currentSymbol->isEpsilon(productionId)) {
-                        currNode->symbolName = epsilon;
+                        currNode->symbolName = EPSILON;
                         return true;
                     } else {
                         return false;

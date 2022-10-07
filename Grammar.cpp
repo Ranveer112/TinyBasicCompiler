@@ -13,8 +13,22 @@
 #include <set>
 #include <unordered_set>
 
-const std::string derivesSymbol = "::=";
-const std::string epsilon = "ε";
+const std::string DERIVES_SYMBOL = "::=";
+const std::string EPSILON = "ε";
+const std::string WHITESPACE = " ";
+const std::string UNITE_OP = "+";
+const std::string KLEENE_OP = "*";
+const std::string OR_OP = "|";
+const std::string OPEN_PARENTHESIS = "(";
+const std::string CLOSE_PARENTHESIS = ")";
+const std::string ESCAPE = "\\";
+const std::string NEWLINE_STR = "\\n";
+const std::string TAB_STR = "\\t";
+const std::string NEWLINE = "\n";
+const std::string TAB = "\t";
+
+const std::string ESCAPE_SEQUENCES[2][2] = {{NEWLINE_STR, NEWLINE},
+                                            {TAB_STR,     TAB}};
 
 class GrammarState {
 public:
@@ -49,9 +63,17 @@ public:
 
     }
 
+    void setName(const std::string &name) {
+        this->name = name;
+    }
+
+    void setPattern(const std::string &pattern) {
+        this->pattern = pattern;
+    }
+
     bool isEpsilon(const int &productionId) const {
         return this->productionsFirstSets[productionId].size() == 1 &&
-               this->productionsFirstSets[productionId].find(epsilon) ==
+               this->productionsFirstSets[productionId].find(EPSILON) ==
                this->productionsFirstSets[productionId].end();
     }
 
@@ -111,27 +133,35 @@ public:
         }
         std::vector<std::string> terminalFileLines;
         while (std::getline(terminalFiles, line)) {
-            if (line.find(derivesSymbol) != std::string::npos) {
+            if (line.find(DERIVES_SYMBOL) != std::string::npos) {
+                for (auto escapeSeq: ESCAPE_SEQUENCES) {
+                    while (line.find(escapeSeq[0]) != std::string::npos) {
+                        int index = line.find(escapeSeq[0]);
+                        line.erase(index, 2);
+                        line.insert(index, escapeSeq[1]);
+                    }
+                }
                 terminalFileLines.push_back(line);
             }
         }
         for (std::string &l: terminalFileLines) {
-            std::string pattern = l.substr(l.find(derivesSymbol) + 2);
-            std::string symbol = l.substr(0, l.find(derivesSymbol) - 1);
-            if (grammarStates.find(symbol) == grammarStates.end()) {
-                GrammarState *g = new GrammarState(symbol, pattern);
-                grammarStates.insert({symbol, g});
-                this->terminalStates.push_back(grammarStates[symbol]);
-            }
+            std::string name = l.substr(0,
+                                        l.find_first_of(WHITESPACE));
+            std::size_t patternStartIndex = l.find_first_of(UNITE_OP + KLEENE_OP + OR_OP + OPEN_PARENTHESIS);
+            std::size_t patternEndIndex = l.find_last_of(CLOSE_PARENTHESIS);
+            std::string pattern = l.substr(patternStartIndex, patternEndIndex - patternStartIndex + 1);
+            GrammarState *g = new GrammarState(name, pattern);
+            grammarStates.insert({g->getName(), g});
+            terminalStates.push_back(g);
         }
         for (std::string &l: nonTerminalFileLines) {
             std::string buffer = "";
             for (size_t i = 0; i < l.size(); i++) {
                 if (l[i] == ' ') {
-                    if (buffer.size() != 0 && buffer != derivesSymbol) {
+                    if (buffer.size() != 0 && buffer != DERIVES_SYMBOL) {
                         if (grammarStates.find(buffer) == grammarStates.end()) {
                             GrammarState *g = nullptr;
-                            if (buffer != epsilon) {
+                            if (buffer != EPSILON) {
                                 g = new GrammarState(buffer);
                             }
                             if (this->startingState == nullptr) {
@@ -146,10 +176,10 @@ public:
                     buffer += l[i];
                 }
             }
-            if (buffer.size() != 0 && buffer != derivesSymbol) {
+            if (buffer.size() != 0 && buffer != DERIVES_SYMBOL) {
                 if (grammarStates.find(buffer) == grammarStates.end()) {
                     GrammarState *g = nullptr;
-                    if (buffer != epsilon) {
+                    if (buffer != EPSILON) {
                         g = new GrammarState(buffer);
                     }
                     grammarStates.insert({buffer, g});
@@ -160,7 +190,7 @@ public:
         std::string lhsSymbol = "";
         for (std::string &l: nonTerminalFileLines) {
             std::string buffer = "";
-            if (l.find(derivesSymbol) == std::string::npos) {
+            if (l.find(DERIVES_SYMBOL) == std::string::npos) {
                 productionId++;
             } else {
                 productionId = 0;
@@ -168,7 +198,7 @@ public:
             }
             for (size_t i = 0; i < l.size(); i++) {
                 if (l[i] == ' ') {
-                    if (buffer.size() != 0 && buffer != derivesSymbol) {
+                    if (buffer.size() != 0 && buffer != DERIVES_SYMBOL) {
                         if (lhsSymbol.size() != 0) {
                             grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
                         } else {
@@ -182,7 +212,7 @@ public:
                 }
             }
 
-            if (buffer.size() != 0 && buffer != derivesSymbol) {
+            if (buffer.size() != 0 && buffer != DERIVES_SYMBOL) {
                 grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
             }
         }
@@ -220,7 +250,7 @@ private:
             for (std::vector<GrammarState *> &production: state->productions) {
                 for (GrammarState *symbolInProduction: production) {
                     if (symbolInProduction == nullptr) {
-                        ostream << epsilon << " ";
+                        ostream << EPSILON << " ";
                     } else {
                         ostream << symbolInProduction->getName() << " ";
                     }
@@ -256,11 +286,11 @@ private:
 
                         while (rhsSymbolInProduction != currProduction.end() && ((*rhsSymbolInProduction) == nullptr ||
                                                                                  (*rhsSymbolInProduction)->firstSet.find(
-                                                                                         epsilon) !=
+                                                                                         EPSILON) !=
                                                                                  (*rhsSymbolInProduction)->firstSet.end())) {
                             if ((*rhsSymbolInProduction) != nullptr) {
                                 for (std::string element: (*rhsSymbolInProduction)->firstSet) {
-                                    if (element != epsilon && g->firstSet.find(element) == g->firstSet.end()) {
+                                    if (element != EPSILON && g->firstSet.find(element) == g->firstSet.end()) {
                                         g->addInFirstSet(element);
                                         g->addInProductionFirstSet(productionIdForSymbol, element);
                                         areChanging = true;
@@ -278,9 +308,9 @@ private:
                                 }
                             }
                         } else {
-                            if (g->firstSet.find(epsilon) == g->firstSet.end()) {
-                                g->addInFirstSet(epsilon);
-                                g->addInProductionFirstSet(productionIdForSymbol, epsilon);
+                            if (g->firstSet.find(EPSILON) == g->firstSet.end()) {
+                                g->addInFirstSet(EPSILON);
+                                g->addInProductionFirstSet(productionIdForSymbol, EPSILON);
                                 areChanging = true;
 
                             }
