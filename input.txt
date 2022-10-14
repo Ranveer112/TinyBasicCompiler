@@ -1,4 +1,1 @@
-PRINT < <> GOSUB
-PRINT   "abcd"
-GOSUB 100
-IF I>25 THEN PRINT "ERROR"
+aak

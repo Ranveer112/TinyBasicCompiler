@@ -73,7 +73,7 @@ public:
 
     bool isEpsilon(const int &productionId) const {
         return this->productionsFirstSets[productionId].size() == 1 &&
-               this->productionsFirstSets[productionId].find(EPSILON) ==
+               this->productionsFirstSets[productionId].find(EPSILON) !=
                this->productionsFirstSets[productionId].end();
     }
 
@@ -108,15 +108,18 @@ public:
 
     GrammarState() {}
 
+
+    std::vector<std::set<std::string>>
+            productionsFirstSets;
 private:
     bool terminal;
     std::string name;
     std::string pattern; //if terminal
     std::vector<std::vector<GrammarState *>> productions;
     std::set<std::string> firstSet;
-    std::vector<std::set<std::string>>
+    /*std::vector<std::set<std::string>>
             productionsFirstSets;
-
+*/
     friend class Grammar;
 };
 

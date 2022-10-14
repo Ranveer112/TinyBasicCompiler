@@ -24,11 +24,19 @@ int main() {
         const std::pair<bool, std::vector<std::pair<GrammarState, std::string>>> result=nfa.generateTokens(fileContent);
         if (result.first) {
             std::cout << "Code lexed properly" << std::endl;
-            for(std::pair<GrammarState, std::string> t:result.second){
-                std::cout<<t.first.getName()<<std::endl;
+            /*
+            for(auto k:result.second){
+                std::cout<<k.first.getName()<<std::endl;
             }
+             */
             Parser parser(g);
-            parser.parse(result.second);
+
+            if(parser.parse(result.second)){
+                std::cout<<"Able to parse"<<std::endl;
+            }
+            else{
+                std::cout<<"Not able to parse"<<std::endl;
+            }
             std::cout << parser.getStringOfAST();
 
 

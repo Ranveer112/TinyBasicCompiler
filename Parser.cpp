@@ -25,6 +25,9 @@ public:
     }
 
     bool parse(const std::vector<std::pair<GrammarState, std::string>> &tokens) {
+        for(auto p:tokens){
+            std::cout<<p.first.getName()<<std::endl;
+        }
         this->root = new ASTNode;
         int tokenId = 0;
         return canParse(this->grammar.getStartingState(), tokenId, root, tokens);
@@ -45,7 +48,6 @@ public:
             }
         } else {
             int productionToChoose = -1;
-            std::vector<ASTNode *> subtree;
             const std::vector<std::vector<GrammarState *>> productions = currentSymbol->getProductions();
             for (int productionId = 0; productionId < productions.size(); productionId++) {
                 if (currentSymbol->isViableProduction(tokens[tokenId].first, productionId)) {
@@ -57,42 +59,42 @@ public:
                     if (currentSymbol->isEpsilon(productionId)) {
                         currNode->symbolName = EPSILON;
                         return true;
-                    } else {
-                        return false;
                     }
                 }
+                return false;
             } else {
                 bool possibleToParseViaCurrentProduction = true;
-                currNode->code = tokens[tokenId].second;
-                currNode->symbolName = tokens[tokenId].first.getName();
+                currNode->code = currentSymbol->getName();
+                //currNode->symbolName = tokens[tokenId].first.getName();
                 for (GrammarState *symbolFromProduction: productions[productionToChoose]) {
                     ASTNode *subtreeNode = new ASTNode;
                     possibleToParseViaCurrentProduction =
                             possibleToParseViaCurrentProduction &&
                             canParse(symbolFromProduction, tokenId, subtreeNode, tokens);
-                    subtree.push_back(subtreeNode);
+                    currNode->subtree.push_back(subtreeNode);
                 }
-                currNode->subtree = subtree;
                 return possibleToParseViaCurrentProduction;
             }
         }
     }
 
     std::string getStringOfAST() const {
-        return getStringHelper(this->root);
+        std:: string indent="";
+        return getStringHelper(indent, this->root);
     }
 
-    std::string getStringHelper(const ASTNode *node) const {
-        std::vector<ASTNode *> subtreeNodes;
+    std::string getStringHelper(std::string &indent,  const ASTNode *node) const {
         std::string result = "";
-        result += "{\n";
-        result += "\tSymbolName: " + node->symbolName + "\n";
-        result += "\tCode :" + node->code + "\n";
-        result += "\tSubtree :\n";
-        for (ASTNode *subtreeNode: subtreeNodes) {
-            result += "\t" + getStringHelper(subtreeNode) + "\n";
+        result += indent+"{\n";
+        result += indent+"\tSymbolName: " + node->symbolName + "\n";
+        result += indent+"\tCode :" + node->code + "\n";
+        result += indent+"\tSubtree :\n";
+        for (ASTNode *subtreeNode: node->subtree) {
+            indent+="\t";
+            result += getStringHelper(indent, subtreeNode);
+            indent.pop_back();
         }
-        result += "}\n";
+        result += indent+"}\n";
         return result;
     }
 
