@@ -5,23 +5,23 @@ line ::= number whitespace statement miscspace newline
          statement miscspace newline
  
 statement ::= print whitespace expr-list
-              if whitespace expression miscspace relop miscspace expression whitespace then whitespace statement
+              if whitespace expression miscspace relop miscspace expression whitespace then whitespace statement miscspace
               goto whitespace expression
               input whitespace var-list
-              let whitespace var miscspace = miscspace expression
+              let whitespace var miscspace equality miscspace expression
               gosub whitespace expression
               return
               clear
               list
               run
               end
- 
+
 expr-list ::= stringOrExp miscspace successiveExpr-list
 
 successiveExpr-list ::= ε
                         comma miscspace stringOrExp miscspace successiveExpr-list
 stringOrExp ::= string
-                expression 
+                expression
 
 var-list ::= var miscspace successiveVar-list
 
@@ -29,20 +29,21 @@ successiveVar-list ::= ε
                        comma miscspace var miscspace successiveVar-list
 
 
-expression ::= additionOrSub term secondexpression 
-  
-secondexpression ::= ε 
-                     additionOrSub term secondexpression
+expression ::= additionOrSub miscspace term miscspace secondexpression
+
+secondexpression ::= ε
+                     additionOrSub miscspace term miscspace secondexpression
 
 additionOrSub ::= add
                   sub
-    
+
 term ::= factor miscspace successiveTerm
 
-successiveTerm ::= ε 
-                   multiplicationOrDiv miscspace successiveTerm
- 
-factor ::= number
+successiveTerm ::= ε
+                   multiplicationOrDiv miscspace factor miscspace successiveTerm
+
+factor ::= var
+           number
            expression
 
 var ::= alpha successiveVar

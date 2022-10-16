@@ -22,12 +22,14 @@ const std::string OR_OP = "|";
 const std::string OPEN_PARENTHESIS = "(";
 const std::string CLOSE_PARENTHESIS = ")";
 const std::string ESCAPE = "\\";
+const std::string ESCAPE_STR="\\\\";
 const std::string NEWLINE_STR = "\\n";
 const std::string TAB_STR = "\\t";
 const std::string NEWLINE = "\n";
 const std::string TAB = "\t";
+const std::string DELIMITER=" ";
 
-const std::string ESCAPE_SEQUENCES[2][2] = {{NEWLINE_STR, NEWLINE},
+const std::string SPECIAL_CHARACTERS[2][2] = {{NEWLINE_STR, NEWLINE},
                                             {TAB_STR,     TAB}};
 
 class GrammarState {
@@ -137,11 +139,11 @@ public:
         std::vector<std::string> terminalFileLines;
         while (std::getline(terminalFiles, line)) {
             if (line.find(DERIVES_SYMBOL) != std::string::npos) {
-                for (auto escapeSeq: ESCAPE_SEQUENCES) {
-                    while (line.find(escapeSeq[0]) != std::string::npos) {
-                        int index = line.find(escapeSeq[0]);
+                for (auto specialCharacter: SPECIAL_CHARACTERS) {
+                    while (line.find(specialCharacter[0]) != std::string::npos) {
+                        int index = line.find(specialCharacter[0]);
                         line.erase(index, 2);
-                        line.insert(index, escapeSeq[1]);
+                        line.insert(index, specialCharacter[1]);
                     }
                 }
                 terminalFileLines.push_back(line);
@@ -160,7 +162,7 @@ public:
         for (std::string &l: nonTerminalFileLines) {
             std::string buffer = "";
             for (size_t i = 0; i < l.size(); i++) {
-                if (l[i] == ' ') {
+                if (l[i] == DELIMITER[0]) {
                     if (buffer.size() != 0 && buffer != DERIVES_SYMBOL) {
                         if (grammarStates.find(buffer) == grammarStates.end()) {
                             GrammarState *g = nullptr;
@@ -173,7 +175,7 @@ public:
                             grammarStates.insert({buffer, g});
                         }
                     }
-                    buffer = "";
+                    buffer.clear();
 
                 } else {
                     buffer += l[i];
@@ -197,10 +199,10 @@ public:
                 productionId++;
             } else {
                 productionId = 0;
-                lhsSymbol = "";
+                lhsSymbol.clear();
             }
             for (size_t i = 0; i < l.size(); i++) {
-                if (l[i] == ' ') {
+                if (l[i] == DELIMITER[0]) {
                     if (buffer.size() != 0 && buffer != DERIVES_SYMBOL) {
                         if (lhsSymbol.size() != 0) {
                             grammarStates[lhsSymbol]->pushBackInProduction(productionId, grammarStates[buffer]);
@@ -208,7 +210,7 @@ public:
                             lhsSymbol = buffer;
                         }
                     }
-                    buffer = "";
+                    buffer.clear();
 
                 } else {
                     buffer += l[i];

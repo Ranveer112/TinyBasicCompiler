@@ -161,7 +161,7 @@ private:
 
             } else if (pattern[i] == UNITE_OP[0] || pattern[i] == KLEENE_OP[0] || pattern[i] == OR_OP[0]) {
                 currentExpressionOp = pattern[i];
-            } else if (pattern[i] == '\\') {
+            } else if (pattern[i] == ESCAPE[0]) {
                 i++;
                 currentExpressionValue = pattern[i];
             } else {
