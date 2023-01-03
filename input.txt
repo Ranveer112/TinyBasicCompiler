@@ -1,7 +1,1 @@
-LET a=+2
-IF +a<=+2 THEN PRINT "aaa"
-GOTO +1000000
-LET b=+3
-LET c=-3
-LET d=-5
-INPUT b, c, d
+LET

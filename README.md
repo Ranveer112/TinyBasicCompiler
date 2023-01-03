@@ -119,3 +119,27 @@ Grammer
     
     newline ::= \n
 ```
+
+Description about some keywords, and the errors associated with them
+
+```
+GOSUB-Subroutine jump, stack pointer modified(label not found errors)
+
+GOTO-Conditional jump(label not found errors)
+
+RETURN-Stack pointer is modified, goback to the place(no gosub were ever called)
+
+END-End program execution here(when the counter reaches at this point,
+                               note we might skip this using jumps)
+                               
+LET-Variable instatiations/assignment(a name taken by label cannot be used)
+
+INPUT-Read the data from I/O into the var-list variables(a label name cannot be used in var-list)
+
+IF-Conditional(vars in expression should be used labels/institated variables)
+
+LIST-Lists the code at that calculated expression line(vars should be used label names/instantiated variables)
+
+PRINT-Prints the value of the expression in the expr-list(vars should be used labels/instantiated variables)
+```
+

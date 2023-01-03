@@ -139,11 +139,13 @@ public:
         std::vector<std::string> terminalFileLines;
         while (std::getline(terminalFiles, line)) {
             if (line.find(DERIVES_SYMBOL) != std::string::npos) {
-                for (auto specialCharacter: SPECIAL_CHARACTERS) {
-                    while (line.find(specialCharacter[0]) != std::string::npos) {
-                        int index = line.find(specialCharacter[0]);
-                        line.erase(index, 2);
-                        line.insert(index, specialCharacter[1]);
+                for (auto specialCharacters: SPECIAL_CHARACTERS) {
+                    std::string specialCharacterString=specialCharacters[0];
+                    std::string specialCharacter=specialCharacters[1];
+                    while (line.find(specialCharacterString) != std::string::npos) {
+                        int index = line.find(specialCharacterString);
+                        line.erase(index, specialCharacterString.size());
+                        line.insert(index, specialCharacter);
                     }
                 }
                 terminalFileLines.push_back(line);

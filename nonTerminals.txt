@@ -1,19 +1,17 @@
 prog ::= ε
          miscspace line prog
 
-line ::= number whitespace statement miscspace newline 
+line ::= label whitespace statement miscspace newline
          statement miscspace newline
  
 statement ::= print whitespace expr-list
               if whitespace expression miscspace relop miscspace expression whitespace then whitespace statement miscspace
-              goto whitespace expression
+              goto whitespace displacement
               input whitespace var-list
               let whitespace var miscspace equality miscspace expression
-              gosub whitespace expression
+              gosub whitespace displacement
               return
-              clear
-              list
-              run
+              list whitespace displacement
               end
 
 expr-list ::= stringOrExp miscspace successiveExpr-list
@@ -60,3 +58,9 @@ miscspace ::= ε
 
 multiplicationOrDiv ::= mult
                          div
+
+displacement ::= labelName displacementSuffix
+
+displacementSuffix ::= additionOrSub expression
+
+label ::= labelName colon

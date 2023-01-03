@@ -37,14 +37,12 @@ public:
         if (tokenId == tokens.size()) {
             return;
         } else if (currentSymbol->isTerminal()) {
-            if (tokens[tokenId].first.getName() != currentSymbol->getName()) {
-                return;
-            } else {
+            if (tokens[tokenId].first.getName() == currentSymbol->getName()) {
                 currNode->code = tokens[tokenId].second;
                 currNode->symbolName = currentSymbol->getName();
                 tokenId++;
-                return;
             }
+            return;
         } else {
             int productionToChoose = -1;
             const std::vector<std::vector<GrammarState *>> productions = currentSymbol->getProductions();
@@ -57,12 +55,10 @@ public:
                 for (int productionId = 0; productionId < currentSymbol->getProductions().size(); productionId++) {
                     if (currentSymbol->isEpsilon(productionId)) {
                         currNode->symbolName = currentSymbol->getName();
-                        return;
                     }
                 }
                 return;
             } else {
-                bool possibleToParseViaCurrentProduction = true;
                 currNode->symbolName = currentSymbol->getName();
                 for (GrammarState *symbolFromProduction: productions[productionToChoose]) {
                     ASTNode *subtreeNode = new ASTNode;
@@ -78,7 +74,6 @@ public:
         std::string indent = "";
         return getStringHelper(indent, this->root);
     }
-
 
 
     const ASTNode *getRoot() {
