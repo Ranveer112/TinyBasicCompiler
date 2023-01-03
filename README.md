@@ -1,4 +1,4 @@
-Compiler for TinyBasic
+~~Compiler~~ Interpretor for TinyBasic
 
 
 Grammer
