@@ -3,7 +3,7 @@ prog ::= ε
 
 line ::= label whitespace statement miscspace newline
          statement miscspace newline
- 
+
 statement ::= print whitespace expr-list
               if whitespace expression miscspace relop miscspace expression whitespace then whitespace statement miscspace
               goto whitespace displacement
@@ -27,7 +27,8 @@ successiveVar-list ::= ε
                        comma miscspace var miscspace successiveVar-list
 
 
-expression ::= additionOrSub miscspace term miscspace secondexpression
+expression ::= term miscspace secondexpression
+               additionOrSub miscspace term miscspace secondexpression
 
 secondexpression ::= ε
                      additionOrSub miscspace term miscspace secondexpression
@@ -42,12 +43,12 @@ successiveTerm ::= ε
 
 factor ::= var
            number
-           expression
+           openParen expression closeParen
 
-var ::= alpha successiveVar
+var ::= alpha successiveName
 
-successiveVar ::=  ε
-                   alpha successiveVar
+successiveName ::=  ε
+                   alpha successiveName
 
 number ::= digit successiveNumber
 
@@ -59,8 +60,9 @@ miscspace ::= ε
 multiplicationOrDiv ::= mult
                          div
 
-displacement ::= labelName displacementSuffix
+displacement ::= var miscspace displacementSuffix
 
-displacementSuffix ::= additionOrSub expression
+displacementSuffix ::= ε
+                      additionOrSub miscspace expression
 
-label ::= labelName colon
+label ::= var miscspace colon
