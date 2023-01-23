@@ -109,7 +109,7 @@ private:
                 if (children->getSymbolName() == "label") {
                     ASTNode *labelNode = children;
                     ASTNode *varNode = children->getSubtree()[0]; //label ::= var miscspace colon (Points to var Node)
-                    std::string nameOfLabel = computeName(varNode);
+                    std::string nameOfLabel = interpretName(varNode);
                     if (tableForLabels.find(nameOfLabel) != tableForLabels.end()) {
                         tableForLabels[nameOfLabel] = lineNumber;
                     } else {
@@ -156,8 +156,36 @@ private:
     }
 
     //
-    int computeValueFromOperatorsAndValues(std::vector<std::string> expression) {
+    int computeValueFromOperatorsAndValues(std::vector<std::string> &expression) {
+        //either division or mulitiplication operators are present
+        //or addition/sub operators are present
 
+        bool isMultOrDiv=false;
+        for(std::string literal:expression){
+            if(literal=="/" || literal=="*"){
+                isMultOrDiv=true;
+                break;
+            }
+        }
+        if(isMultOrDiv) {
+            std::stack<std::string> numericValuesToBeMultiplied;
+            bool isPrevDiv=false;
+            for(std::string literal:expression){
+                if(literal=="/" || literal=="*"){
+                    isPrevDiv=(literal=="/");
+                }else{
+                    if(isPrevDiv){
+                        std::string firstNumber=numericValuesToBeMultiplied.top();
+                        numericValuesToBeMultiplied.pop();
+                        numericValuesToBeMultiplied.push(firstNumber/)
+                    }else{
+                        numericValuesToBeMultiplied.push(literal);
+                    }
+                }
+            }
+        }else{
+
+        }
     }
 
     int interpretValueOfTerm(ASTNode *termNode) {
