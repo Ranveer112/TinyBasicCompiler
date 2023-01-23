@@ -58,6 +58,9 @@ Constructor which does some pre-processing-
 #include "Parser.cpp"
 #include "stack"
 
+typedef int int_32t;
+typedef long long int64_t;
+
 class Interpreter {
 public:
     /*
@@ -70,8 +73,9 @@ public:
      */
     Interpreter(ASTNode *programTree) {
         this->programTree = programTree;
-        this->programCounter = this->programTree;
+        computeLabelsAndLineNo();
     }
+
 
 
     /*
@@ -114,7 +118,8 @@ private:
                         tableForLabels[nameOfLabel] = lineNumber;
                     } else {
                         //error of duplicate label names
-                        this->errorTrace.push_back("Duplicate label found for label :" + nameOfLabel);
+                        const std::string errorMessage = "Duplicate label found for label :" + nameOfLabel;
+                        logError(errorMessage, true);
                     }
                 }
             }
@@ -139,7 +144,9 @@ private:
     }
 
     std::string interpretOperator(ASTNode *operatorNode) {
-        return
+        //since operator node is terminal just get the code associated with that
+        //grammar state
+        return operatorNode->getCode();
     }
 
     std::string interpretNumber(ASTNode *numberNode) {
@@ -156,34 +163,71 @@ private:
     }
 
     //
-    int computeValueFromOperatorsAndValues(std::vector<std::string> &expression) {
+    int computeValueFromOperatorsAndValues(const std::vector<std::string> &expression) {
         //either division or mulitiplication operators are present
         //or addition/sub operators are present
 
-        bool isMultOrDiv=false;
-        for(std::string literal:expression){
-            if(literal=="/" || literal=="*"){
-                isMultOrDiv=true;
+        bool isMultOrDiv = false;
+        for (std::string literal: expression) {
+            if (literal == "/" || literal == "*") {
+                isMultOrDiv = true;
                 break;
             }
         }
-        if(isMultOrDiv) {
-            std::stack<std::string> numericValuesToBeMultiplied;
-            bool isPrevDiv=false;
-            for(std::string literal:expression){
-                if(literal=="/" || literal=="*"){
-                    isPrevDiv=(literal=="/");
-                }else{
-                    if(isPrevDiv){
-                        std::string firstNumber=numericValuesToBeMultiplied.top();
+        if (isMultOrDiv) {
+            std::stack<int> numericValuesToBeMultiplied;
+            bool isPrevDiv = false;
+            for (std::string literal: expression) {
+                if (literal == "/" || literal == "*") {
+                    isPrevDiv = (literal == "/");
+                } else {
+                    if (isPrevDiv) {
+                        int numerator = numericValuesToBeMultiplied.top();
+                        int denominator = std::stoi(literal);
                         numericValuesToBeMultiplied.pop();
-                        numericValuesToBeMultiplied.push(firstNumber/)
-                    }else{
-                        numericValuesToBeMultiplied.push(literal);
+                        int result = -1;
+                        if (denominator == 0) {
+                            const std::string errorMessage = "Denominator expressed as 0. Undefined. Note, due to integer division, denominator could be becoming 0";
+                            logError(errorMessage);
+                            return -1;
+                        } else {
+                            result = numerator / denominator;
+                        }
+                        numericValuesToBeMultiplied.push(result);
+                    } else {
+                        numericValuesToBeMultiplied.push(std::stoi(literal));
                     }
                 }
             }
-        }else{
+            //long long type to detect 32 bit overflow
+            long long finalAns = 1;
+            while (!numericValuesToBeMultiplied.empty()) {
+                finalAns *= numericValuesToBeMultiplied.top();
+                numericValuesToBeMultiplied.pop();
+                if (finalAns > INT_MAX) {
+                    const std::string errorMessage = "Overflow happened";
+                    logError(errorMessage);
+                    return -1;
+                }
+            }
+            return (int) finalAns;
+
+        } else {
+            long long finalAns = 0;
+            int sign = 1;//either +1/-1
+            for (std::string literal: expression) {
+                if (literal == "+" || literal == "-") {
+                    sign = (literal == "+" ? 1 : -1);
+                } else {
+                    finalAns += std::stoi(literal) * sign;
+                    if (finalAns > INT_MAX) {
+                        const std::string errorMessage = "Overflow happened";
+                        logError(errorMessage);
+                        return -1;
+                    }
+                }
+            }
+            return (int) finalAns;
 
         }
     }
@@ -199,8 +243,8 @@ private:
         if (childrens[0]->getSymbolName() == "var") {
             ASTNode *varNode = childrens[0];
             if (tableForVariables.find(interpretName(varNode)) == tableForVariables.end()) {
-                this->errorTrace.push_back(
-                        "Variable not defined is being called. Do an instantiation with keyword let");
+                const std::string errorMessage = "Variable not defined is being called. Do an instantiation with keyword let";
+                logError(errorMessage);
                 return -1;
             } else {
                 return tableForVariables[interpretName(varNode)];
@@ -212,6 +256,7 @@ private:
             ASTNode *expressionNode = childrens[1];
             return interpretValueOfExpression(expressionNode);
         } else {
+            //unreachable as parser should catch it
             errorTrace.push_back("Parsing error");
             return -1;
         }
@@ -233,8 +278,8 @@ private:
             ASTNode *varNode = expression;
             std::string nameOfVariable = interpretName(varNode);
             if (this->tableForVariables.find(nameOfVariable) == this->tableForVariables.end()) {
-                this->errorTrace.push_back(
-                        "Variable not defined is being called. Do an instantiation with keyword let");
+                const std::string errorMessage = "Variable not defined is being called. Do an instantiation with keyword let";
+                logError(errorMessage);
                 return -1;
             } else {
                 return this->tableForVariables[interpretName(varNode)];
@@ -261,12 +306,19 @@ private:
                 }
 
             }
-            //TODO:
-            return ..;
+            return computeValueFromOperatorsAndValues(expressionLine);
         }
     }
 
-    ASTNode *programCounter;
+    void logError(const std::string &errorMessage, bool isPreProcessingError = false) {
+        if (isPreProcessingError) {
+            this->errorTrace.push_back(errorMessage);
+        } else {
+            this->errorTrace.push_back(errorMessage + " : Line " + std::to_string(programCounter));
+        }
+    }
+
+    int programCounter;
     ASTNode *programTree;
     std::unordered_map<std::string, int> tableForLabels;
     std::vector<ASTNode *> rootForLine;
