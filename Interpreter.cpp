@@ -99,6 +99,129 @@ private:
         computeLabelsAndLineNoHelper(this->programTree);
     }
 
+
+    std::string interpretExpressionList(ASTNode *expressionListNode) {
+        std::string currentExpressionList = "";
+        for (ASTNode *children: expressionListNode->getSubtree()) {
+            if (children->getSymbolName() == "stringOrExp") {
+                ASTNode *stringOrExpressionNode = children->getSubtree()[0];
+                bool isStringType = (stringOrExpressionNode->getSymbolName() == "string");
+                std::string currentExpression = (isStringType ? stringOrExpressionNode->getCode() : std::to_string(
+                        interpretValueOfExpression(stringOrExpressionNode)));
+                currentExpressionList += currentExpression;
+            } else if (children->getSymbolName() == "successiveExpr-list") {
+                ASTNode *successiveExpressionListNode = children;
+                std::string successiveExpressionList = interpretExpressionList(successiveExpressionListNode);
+                currentExpressionList += " ";
+                currentExpressionList += successiveExpressionList;
+            }
+        }
+        return currentExpressionList;
+    }
+
+    void interpretStatement(ASTNode *statementNode) {
+        ASTNode *commandNode = statementNode->getSubtree()[0];
+        if (commandNode->getSymbolName() == "print") {
+            std::string expressionListToPrint = "";
+            for (ASTNode *children: statementNode->getSubtree()) {
+                if (children->getSymbolName() == "expr-list") {
+                    ASTNode *expressionListNode = children;
+                    expressionListToPrint += interpretExpressionList(expressionListNode);
+                }
+            }
+            //result of interpretation of the line of code
+            std::cout << expressionListToPrint;
+            this->programCounter++;
+            interpretLine(this->programCounter);
+        } else if (commandNode->getSymbolName() == "if") {
+            std::vector<int> expressionsToCompare;
+            ASTNode *relationalOperatorNode;
+            ASTNode *statementToExecuteIfTrue;
+            for (ASTNode *children: statementNode->getSubtree()) {
+                if (children->getSymbolName() == "expression") {
+                    ASTNode *expressionNode = children;
+                    expressionsToCompare.push_back(interpretValueOfExpression(expressionNode));
+                } else if (children->getSymbolName() == "relop") {
+                    relationalOperatorNode = children;
+                } else if (children->getSymbolName() == "statement") {
+                    statementToExecuteIfTrue = children;
+                }
+            }
+            if (interpretConditional(relationalOperatorNode, expressionsToCompare)) {
+                interpretStatement(statementToExecuteIfTrue);
+            } else {
+                this->programCounter++;
+                interpretLine(this->programCounter);
+            }
+
+        } else if (commandNode->getSymbolName() == "goto" || commandNode->getSymbolName() == "gosub") {
+            int lineNumberToGo = 0;
+            for (ASTNode *children: statementNode->getSubtree()) {
+                if (children->getSymbolName() == "displacement") {
+                    ASTNode *displacementNode = children;
+                    lineNumberToGo = interpretDisplacement(displacementNode);
+                }
+            }
+            if (commandNode->getSymbolName() == "gosub") {
+                this->callStack.push(this->programCounter);
+            }
+            this->programCounter = lineNumberToGo;
+            interpretLine(this->programCounter);
+
+
+        } else if (commandNode->getSymbolName() == "input") {
+
+        } else if (commandNode->getSymbolName() == "let") {
+            bool variableWithSameNameExists = false;
+            std::string nameOfVariable = "";
+            int valueForVariable = -1;
+            for (ASTNode *children: statementNode->getSubtree()) {
+                if (children->getSymbolName() == "var") {
+                    ASTNode *varNode = children;
+                    nameOfVariable = interpretName(varNode);
+                    if (tableForVariables.find(nameOfVariable) != tableForVariables.end()) {
+                        variableWithSameNameExists = true;
+                    }
+                } else if (children->getSymbolName() == "expression") {
+                    ASTNode *expressionNode = children;
+                    valueForVariable = interpretValueOfExpression(expressionNode);
+                }
+            }
+            if (variableWithSameNameExists) {
+                logError("Variable with name " + nameOfVariable + " already instiated. Use a different name");
+            } else {
+                tableForVariables[nameOfVariable] = valueForVariable;
+            }
+        } else if (commandNode->getSymbolName() == "return") {
+            if (callStack.empty()) {
+                logError("Return was called, but nothing to go. Make sure a return has a corresponding gosub");
+            } else {
+                int lineNumberToGo = callStack.top();
+                callStack.pop();
+                this->programCounter = lineNumberToGo;
+                interpretLine(this->programCounter);
+            }
+        } else if (commandNode->getSymbolName() == "list") {
+            //TODO
+        } else if (commandNode->getSymbolName() == "end") {
+            this->programCounter = rootForLine.size();
+            interpretLine(this->programCounter);
+        }
+    }
+
+    void interpretLine(int lineNumber) {
+        ASTNode *currLineNode = this->rootForLine[lineNumber];
+        for (ASTNode *children: currLineNode->getSubtree()) {
+            if (children->getSymbolName() == "statement") {
+                interpretStatement(children);
+            }
+        }
+    }
+
+    void interpretProg() {
+        interpretLine(this->programCounter);
+    }
+
     void computeLabelsAndLineNoHelper(ASTNode *currNode) {
         if (currNode != nullptr && currNode->getSymbolName() == "prog") {
             //prog ::= epsilon
@@ -323,7 +446,7 @@ private:
     std::unordered_map<std::string, int> tableForLabels;
     std::vector<ASTNode *> rootForLine;
     std::unordered_map<std::string, int> tableForVariables;
-    std::stack<ASTNode *> callStack;
+    std::stack<int> callStack;
     std::vector<std::string> errorTrace;
 
 };
