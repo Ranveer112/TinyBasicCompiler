@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Grammar.cpp"
+#include "Testing.cpp"
 
 class ASTNode {
 public:

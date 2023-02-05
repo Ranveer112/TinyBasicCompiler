@@ -12,6 +12,7 @@
 #include <map>
 #include <set>
 #include <unordered_set>
+#include "Testing.cpp"
 
 const std::string DERIVES_SYMBOL = "::=";
 const std::string EPSILON = "ε";
@@ -332,4 +333,5 @@ private:
 
     GrammarState *startingState = nullptr;
     std::vector<GrammarState *> terminalStates;
+    friend class Testing;
 };

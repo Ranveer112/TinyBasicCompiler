@@ -9,7 +9,7 @@
 #include <iostream>
 #include <queue>
 #include <functional>
-
+#include "Testing.cpp"
 class NFAState {
     NFAState() {}
 

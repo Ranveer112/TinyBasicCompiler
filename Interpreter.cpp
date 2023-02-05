@@ -57,6 +57,7 @@ Constructor which does some pre-processing-
 #include "unordered_map"
 #include "Parser.cpp"
 #include "stack"
+#include "Testing.cpp"
 
 typedef int int_32t;
 typedef long long int64_t;
@@ -67,7 +68,7 @@ public:
      * Instatiates the following data member as such:
      *
      * 1) programTTree data member is same as the tree passed in.
-     *
+     *n
      * 2) programCounter is currently pointing to the root of the tree passed in
      *
      */
@@ -75,7 +76,9 @@ public:
         this->programTree = programTree;
         computeLabelsAndLineNo();
     }
-
+    void interpretProg() {
+        interpretLine(this->programCounter);
+    }
 
 
     /*
@@ -117,6 +120,53 @@ private:
             }
         }
         return currentExpressionList;
+    }
+
+    bool interpretConditional(ASTNode *relationalOperatorNode, std::vector<int> expressions) {
+        std::string relationalOperator = relationalOperatorNode->getCode();
+        if (relationalOperator == "<>" || relationalOperator == "><") {
+            return expressions[0] != expressions[1];
+        } else if (relationalOperator == ">=") {
+            return expressions[0] >= expressions[1];
+        } else if (relationalOperator == "<=") {
+            return expressions[0] <= expressions[1];
+        } else if (relationalOperator == ">") {
+            return expressions[0] > expressions[1];
+        } else if (relationalOperator == "<") {
+            return expressions[0] < expressions[1];
+        } else if (relationalOperator == "=") {
+            return expressions[0] == expressions[1];
+        }
+    }
+
+    int interpretDisplacement(ASTNode *displacementNode) {
+        std::vector<std::string> expressionLine;
+        //Disregarding the miscspace tokens
+        //displacementVar additionOrSub expression
+        for (ASTNode *children: displacementNode->getSubtree()) {
+            if (children->getSymbolName() == "var") {
+                ASTNode *varNode = children;
+                std::string labelVarName = interpretName(varNode);
+                if (tableForLabels.find(labelVarName) == tableForLabels.end()) {
+                    logError("Displacement value for goto/gosub starts with a non-label variable type");
+                } else {
+                    int value = tableForLabels[labelVarName];
+                    expressionLine.push_back(std::to_string(value));
+                }
+            } else if (children->getSymbolName() == "displacementSuffix") {
+                ASTNode *displacementSuffixNode = children;
+                for (ASTNode *suffixChildren: displacementSuffixNode->getSubtree()) {
+                    if (suffixChildren->getSymbolName() == "additionOrSub") {
+                        ASTNode *operatorNode = suffixChildren;
+                        expressionLine.push_back(interpretOperator(operatorNode));
+                    } else if (suffixChildren->getSymbolName() == "expression") {
+                        ASTNode *expressionNode = suffixChildren;
+                        expressionLine.push_back(std::to_string(interpretValueOfExpression(expressionNode)));
+                    }
+                }
+            }
+        }
+        return computeValueFromOperatorsAndValues(expressionLine);
     }
 
     void interpretStatement(ASTNode *statementNode) {
@@ -162,13 +212,15 @@ private:
                     lineNumberToGo = interpretDisplacement(displacementNode);
                 }
             }
-            if (commandNode->getSymbolName() == "gosub") {
-                this->callStack.push(this->programCounter);
+            if (lineNumberToGo < 0 || lineNumberToGo > rootForLine.size() - 1) {
+                logError("Displacement value cannot be negative or greater than max line number");
+            } else {
+                if (commandNode->getSymbolName() == "gosub") {
+                    this->callStack.push(this->programCounter);
+                }
+                this->programCounter = lineNumberToGo;
+                interpretLine(this->programCounter);
             }
-            this->programCounter = lineNumberToGo;
-            interpretLine(this->programCounter);
-
-
         } else if (commandNode->getSymbolName() == "input") {
 
         } else if (commandNode->getSymbolName() == "let") {
@@ -202,7 +254,7 @@ private:
                 interpretLine(this->programCounter);
             }
         } else if (commandNode->getSymbolName() == "list") {
-            //TODO
+
         } else if (commandNode->getSymbolName() == "end") {
             this->programCounter = rootForLine.size();
             interpretLine(this->programCounter);
@@ -210,6 +262,9 @@ private:
     }
 
     void interpretLine(int lineNumber) {
+        if (this->errorTrace.size() > 0 || lineNumber < 0 || lineNumber > this->rootForLine.size() - 1) {
+            return;
+        }
         ASTNode *currLineNode = this->rootForLine[lineNumber];
         for (ASTNode *children: currLineNode->getSubtree()) {
             if (children->getSymbolName() == "statement") {
@@ -218,9 +273,7 @@ private:
         }
     }
 
-    void interpretProg() {
-        interpretLine(this->programCounter);
-    }
+
 
     void computeLabelsAndLineNoHelper(ASTNode *currNode) {
         if (currNode != nullptr && currNode->getSymbolName() == "prog") {
@@ -448,5 +501,5 @@ private:
     std::unordered_map<std::string, int> tableForVariables;
     std::stack<int> callStack;
     std::vector<std::string> errorTrace;
-
+    friend class Testing;
 };
